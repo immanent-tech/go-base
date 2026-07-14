@@ -106,7 +106,14 @@ func GetAppName() string {
 	if err := loadConfig(); err != nil {
 		panic(err)
 	}
-	return cfg.Version
+	return cfg.AppName
+}
+
+func GetAppDescription() string {
+	if err := loadConfig(); err != nil {
+		panic(err)
+	}
+	return cfg.AppDescription
 }
 
 func GetVersion() string {

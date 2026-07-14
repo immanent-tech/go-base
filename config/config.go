@@ -222,6 +222,10 @@ type Duration struct {
 	time.Duration
 }
 
+func NewDuration(duration time.Duration) Duration {
+	return Duration{Duration: duration}
+}
+
 func (t Duration) Validate() error {
 	if _, err := time.ParseDuration(t.String()); err != nil {
 		return fmt.Errorf("parse duration: %w", err)

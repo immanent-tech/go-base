@@ -2,9 +2,20 @@
 
 A base set of packages for building go applications.
 
-## Environment Variables
+- [GO BASE](#go-base)
+  - [👀 Usage](#-usage)
+    - [Environment Variables](#environment-variables)
+      - [General](#general)
+      - [HTTP Client](#http-client)
+      - [Logging](#logging)
+  - [⚠️ License](#️-license)
+  - [🤝 Contact](#-contact)
 
-## General
+## 👀 Usage
+
+### Environment Variables
+
+#### General
 
 - `APP_NAME`: the application name. i.e., "My App".
 - `APP_ID`: the application id in reverse-dotted notation. i.e., "com.my.app".
@@ -14,14 +25,24 @@ A base set of packages for building go applications.
 - `APP_ENVIRONMENT`: the application envrionment, either "production" or "development". Defaults to "development".
 - `APP_BASEURL`: the base URL on which the web component of the app will run.
 
-### HTTP Client
+#### HTTP Client
 
 - `CLIENT_USERAGENT`: the user-agent string to send with client requests. Defaults to `${APP_NAME}/${APP_VERSION}`.
 - `CLIENT_REQUEST_TIMEOUT`: the default timeout for requests. No default. Parsed as a duration string, e.g., "30s".
 - `CLIENT_REQUEST_RETRIES`: the number of retries for a failed request. Defaults to 3.
 
-### Logging
+#### Logging
 
 - `LOG_LEVEL`: the default log level. Defaults to "info". One of "trace", "debug", "info", "warn" or "error".
 - `LOG_FILE`: a file to write logs to. Will be overwritten if it exists. When running in a container, setting this value
   will have no effect (i.e., writing logs to files is disabled).
+
+## ⚠️ License
+
+Distributed under the AGPL-3.0-or-later License. See [LICENSE](https://github.com/immanent-tech/go-base/blob/main/LICENSE) for more information.
+
+## 🤝 Contact
+
+Immanent Tech — [hello@immanent.tech](mailto:hello@immanent.tech)
+
+Project Link: [github.com/immanent-tech/go-base](https://github.com/immanent-tech/go-base)

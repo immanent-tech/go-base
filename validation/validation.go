@@ -1,3 +1,4 @@
+// Copyright 2026 Joshua Rich <joshua.rich@gmail.com>.
 // SPDX-License-Identifier: 	AGPL-3.0-or-later
 
 package validation
@@ -41,7 +42,9 @@ func ParseStructValidationErrors(validationErrors validator.ValidationErrors) *E
 	// Generate details of fields that failed validation.
 	var details strings.Builder
 	for err := range slices.Values(validationErrors) {
-		details.WriteString(err.Field() + " " + err.Error())
+		details.WriteString(err.Field())
+		details.WriteString(" ")
+		details.WriteString(err.Error())
 		details.WriteRune('\n')
 		fields[err.Field()] = err.Error()
 	}

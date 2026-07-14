@@ -52,9 +52,9 @@ type baseConfig struct {
 	// AppID is the application name formatted for use as an ID.
 	AppID string `koanf:"id" validate:"required"`
 	// AppDescription is the catch-line of the application.
-	AppDescription string `koanf:"description" validate:"required"`
+	AppDescription string `koanf:"description"`
 	// Version is the application/stack version.
-	Version string `koanf:"version" validate:"required,ne=_UNKNOWN_"`
+	Version string `koanf:"version"`
 	// CurrentEnvironment is the environment in which the app is running (i.e., production, development). Defaults to
 	// "development".
 	Environment Environment `koanf:"environment" validate:"required,oneof=production development"`
@@ -155,8 +155,8 @@ func Load[T any](envPrefix string, cfg T) error {
 			// Lowercase and remove the prefix.
 			key = strings.ToLower(strings.TrimPrefix(key, envPrefix))
 			// Split space-separate values into a slice.
-			if strings.Contains(value, " ") {
-				return key, strings.Split(value, " ")
+			if strings.Contains(value, ",") {
+				return key, strings.Split(value, ",")
 			}
 			// Split key1=value1;key2=value2 pairs into a map.
 			if containsKeyValuePairs(value) {

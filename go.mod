@@ -1,4 +1,4 @@
-module github.com/joshuar/go-base
+module github.com/immanent-tech/go-base
 
 go 1.26.5
 

@@ -16,7 +16,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/joshuar/go-base/validation"
+	"github.com/immanent-tech/go-base/validation"
 	"github.com/knadh/koanf/providers/env/v2"
 	"github.com/knadh/koanf/v2"
 )

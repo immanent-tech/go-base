@@ -15,7 +15,7 @@ import (
 	"sync"
 
 	"codeberg.org/readeck/go-readability/v2"
-	"github.com/joshuar/go-base/client"
+	"github.com/immanent-tech/go-base/client"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 )

@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	"github.com/go-resty/resty/v2"
-	"github.com/joshuar/go-base/config"
+	"github.com/immanent-tech/go-base/config"
 )
 
 const (

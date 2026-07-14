@@ -14,7 +14,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/go-json-experiment/json"
 	"github.com/go-json-experiment/json/jsontext"
-	"github.com/joshuar/go-base/config"
+	"github.com/immanent-tech/go-base/config"
 	"github.com/lmittmann/tint"
 	"github.com/mattn/go-isatty"
 	slogmulti "github.com/samber/slog-multi"

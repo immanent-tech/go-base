@@ -17,7 +17,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/joshuar/go-base/config"
+	"github.com/immanent-tech/go-base/config"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"

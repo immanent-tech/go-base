@@ -19,8 +19,8 @@ import (
 
 // CORS contains values for various CORS settings derived from the environment.
 type CORS struct {
-	AllowedOrigins  []string `koanf:"allowedorigins"  validate:"required"`
-	MaxAge          int      `koanf:"maxage"`
+	AllowedOrigins  []string `koanf:"allowedorigins"  validate:"required,unique"`
+	MaxAge          int      `koanf:"maxage"          validate:"omitempty,gt=0"`
 	RequestHeaders  []string `koanf:"requestheaders"`
 	ResponseHeaders []string `koanf:"responseheaders"`
 }

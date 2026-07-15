@@ -40,37 +40,37 @@ var LevelNames = map[slog.Leveler]string{
 
 type Config struct {
 	// The default logging level.
-	Level   string `koanf:"level" validate:"omitempty,oneof=trace debug info warn error"`
-	LogFile string `koanf:"file" validate:"omitempty,file"`
+	Level        string     `koanf:"level" validate:"omitempty,oneof=trace debug info warn error"`
+	LogFile      string     `koanf:"file"  validate:"omitempty,file"`
+	currentLevel slog.Level `koanf:"-"`
 }
 
 var cfg *Config
 
 // New creates a new logger with the given options.
 func New() *slog.Logger {
-	cfg := &Config{
-		Level: "info",
+	cfg = &Config{
+		Level:        "info",
+		currentLevel: slog.LevelInfo,
 	}
 	if err := config.Load(configEnvPrefix, cfg); err != nil {
 		panic(fmt.Errorf("load config: %w", err))
 	}
 
-	var slogLevel slog.Level
-
 	// Set the log level.
 	switch cfg.Level {
 	case "trace":
-		slogLevel = LevelTrace
+		cfg.currentLevel = LevelTrace
 	case "debug":
-		slogLevel = slog.LevelDebug
+		cfg.currentLevel = slog.LevelDebug
 	case "info":
-		slogLevel = slog.LevelInfo
+		cfg.currentLevel = slog.LevelInfo
 	case "warn":
-		slogLevel = slog.LevelWarn
+		cfg.currentLevel = slog.LevelWarn
 	case "error":
-		slogLevel = slog.LevelError
+		cfg.currentLevel = slog.LevelError
 	default:
-		slogLevel = slog.LevelInfo
+		cfg.currentLevel = slog.LevelInfo
 	}
 
 	var handlers []slog.Handler
@@ -78,13 +78,15 @@ func New() *slog.Logger {
 	// When logging in a conainer, use json output and disable log file, otherwise, use colourful output.
 	if config.DetectContainerRuntime() != config.RuntimeNone {
 		cfg.LogFile = ""
-		instrumentedHandler := HandlerWithSpanContext(slogjson.NewHandler(os.Stderr, containerConsoleOptions(slogLevel)))
+		instrumentedHandler := HandlerWithSpanContext(
+			slogjson.NewHandler(os.Stderr, containerConsoleOptions(cfg.currentLevel)),
+		)
 		handlers = append(handlers,
 			instrumentedHandler,
 		)
 	} else {
 		handlers = append(handlers,
-			tint.NewHandler(os.Stderr, consoleOptions(slogLevel, os.Stderr.Fd())),
+			tint.NewHandler(os.Stderr, consoleOptions(cfg.currentLevel, os.Stderr.Fd())),
 		)
 	}
 
@@ -94,7 +96,7 @@ func New() *slog.Logger {
 			fmt.Fprintln(os.Stderr, "unable to open log file: %w", err)
 		} else {
 			handlers = append(handlers,
-				slogjson.NewHandler(logFH, generateFileOpts(slogLevel)),
+				slogjson.NewHandler(logFH, generateFileOpts(cfg.currentLevel)),
 			)
 		}
 	}
@@ -116,6 +118,11 @@ func New() *slog.Logger {
 	logger.Info("Logger initialised.")
 
 	return logger
+}
+
+// GetLogLevel returns the current default log level.
+func GetLogLevel() slog.Level {
+	return cfg.currentLevel
 }
 
 func containerConsoleOptions(level slog.Level) *slogjson.HandlerOptions {

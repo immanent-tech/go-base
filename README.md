@@ -4,6 +4,9 @@ A base set of packages for building go applications.
 
 - [GO BASE](#go-base)
   - [👀 Usage](#-usage)
+    - [Devcontainer](#devcontainer)
+      - [Post-create Script Helpers](#post-create-script-helpers)
+      - [Base Container Images](#base-container-images)
     - [Environment Variables](#environment-variables)
       - [General](#general)
       - [HTTP Client](#http-client)
@@ -12,6 +15,19 @@ A base set of packages for building go applications.
   - [🤝 Contact](#-contact)
 
 ## 👀 Usage
+
+### Devcontainer
+
+#### Post-create Script Helpers
+
+In `.devcontainer/postcreate.scripts.d`, there are various scripts that can be run from a single devcontainer
+post-create script to install various tools and services.
+
+#### Base Container Images
+
+The `.devcontainer/*.Dockerfile` Dockerfiles build containers that can be used as a base for creating a specialised
+devcontainer for a project. Packages for each image built from these will be available at
+[packages](https://github.com/orgs/immanent-tech/packages?repo_name=go-base).
 
 ### Environment Variables
 

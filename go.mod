@@ -4,7 +4,7 @@ go 1.26.5
 
 require (
 	github.com/knadh/koanf/providers/env/v2 v2.0.0
-	github.com/mattn/go-isatty v0.0.20
+	github.com/mattn/go-isatty v0.0.22
 	go.opentelemetry.io/otel/trace v1.44.0
 	golang.org/x/net v0.56.0
 )

@@ -33,7 +33,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - service: alpine-base
+          - service: alpine
 
     env:
       REGISTRY: ghcr.io

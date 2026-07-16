@@ -22,11 +22,6 @@ import (
 )
 
 const (
-	// ConfigEnvPrefix defines the environment variable prefix for reading server configuration from the environment.
-	ConfigEnvPrefix = "APP_"
-)
-
-const (
 	// EnvDevelopment represents a development environment.
 	EnvDevelopment Environment = "development"
 	// EnvProduction represents a production environment.
@@ -41,9 +36,15 @@ func (e Environment) String() string {
 }
 
 var (
-	ErrLoadConfig    = errors.New("error loading config")
+	// ConfigEnvPrefix defines the environment variable prefix for reading server configuration from the environment.
+	// This can be overridden to provide a customised default environment prefix for an app.
+	ConfigEnvPrefix = "APP_"
+	// ErrLoadConfig is the sentinel error returned when there was an issue loading the config.
+	ErrLoadConfig = errors.New("error loading config")
+	// ErrInvalidConfig is the sentinel error returned when the config was loaded but contains invalid values.
 	ErrInvalidConfig = errors.New("invalid config")
-	kvPairRegex      = regexp.MustCompile(`([\w.-]+=[^;]+;)+[\w.-]+=[^;]+`)
+
+	kvPairRegex = regexp.MustCompile(`([\w.-]+=[^;]+;)+[\w.-]+=[^;]+`)
 )
 
 type baseConfig struct {
@@ -226,7 +227,7 @@ func NewDuration(duration time.Duration) Duration {
 	return Duration{Duration: duration}
 }
 
-func (t Duration) Validate() error {
+func (t *Duration) Validate() error {
 	if _, err := time.ParseDuration(t.String()); err != nil {
 		return fmt.Errorf("parse duration: %w", err)
 	}

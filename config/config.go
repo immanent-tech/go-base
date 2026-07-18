@@ -52,8 +52,6 @@ type baseConfig struct {
 	AppName string `koanf:"name" validate:"required"`
 	// AppID is the application name formatted for use as an ID.
 	AppID string `koanf:"id" validate:"required"`
-	// AppDescription is the catch-line of the application.
-	AppDescription string `koanf:"description"`
 	// Version is the application/stack version.
 	Version string `koanf:"version"`
 	// CurrentEnvironment is the environment in which the app is running (i.e., production, development). Defaults to
@@ -108,13 +106,6 @@ func GetAppName() string {
 		panic(err)
 	}
 	return cfg.AppName
-}
-
-func GetAppDescription() string {
-	if err := loadConfig(); err != nil {
-		panic(err)
-	}
-	return cfg.AppDescription
 }
 
 func GetVersion() string {

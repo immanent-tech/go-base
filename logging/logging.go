@@ -39,9 +39,12 @@ var LevelNames = map[slog.Leveler]string{
 }
 
 type Config struct {
-	// The default logging level.
-	Level        string     `koanf:"level" validate:"omitempty,oneof=trace debug info warn error"`
-	LogFile      string     `koanf:"file"  validate:"omitempty,file"`
+	// Level is the current default logging level.
+	Level string `koanf:"level" validate:"omitempty,oneof=trace debug info warn error"`
+	// Format overrides any auto-assigned format of the logs to the one specified.
+	Format string `koanf:"format" validate:"omitempty,oneof=json console"`
+	// LogFile is a file to which logs will be written. Any existing file will be overwritten.
+	LogFile      string     `koanf:"file" validate:"omitempty,file"`
 	currentLevel slog.Level `koanf:"-"`
 }
 
@@ -49,6 +52,7 @@ var cfg *Config
 
 // New creates a new logger with the given options.
 func New() *slog.Logger {
+	// Read config from environment.
 	cfg = &Config{
 		Level:        "info",
 		currentLevel: slog.LevelInfo,
@@ -75,8 +79,8 @@ func New() *slog.Logger {
 
 	var handlers []slog.Handler
 
-	// When logging in a conainer, use json output and disable log file, otherwise, use colourful output.
-	if config.DetectContainerRuntime() != config.RuntimeNone {
+	// When logging in a container, use JSON output and disable logfile, unless the "console" format has been specified.
+	if config.DetectContainerRuntime() != config.RuntimeNone && cfg.Format != "console" {
 		cfg.LogFile = ""
 		instrumentedHandler := HandlerWithSpanContext(
 			slogjson.NewHandler(os.Stderr, containerConsoleOptions(cfg.currentLevel)),
@@ -90,7 +94,7 @@ func New() *slog.Logger {
 		)
 	}
 
-	// Unless no log file was requested, set up file logging.
+	// Unless no logfile was requested, set up file logging.
 	if cfg.LogFile != "" {
 		if logFH, err := openLogFile(cfg.LogFile); err != nil {
 			fmt.Fprintln(os.Stderr, "unable to open log file: %w", err)

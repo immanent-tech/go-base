@@ -23,6 +23,7 @@ import (
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer/html"
 	"go.abhg.dev/goldmark/frontmatter"
+	"golang.org/x/text/encoding/htmlindex"
 )
 
 var bufPool = sync.Pool{
@@ -47,22 +48,19 @@ var LoadMarkdownWriter = sync.OnceValue(func() goldmark.Markdown {
 	)
 })
 
-// ToHTML treats the given string data input as Markdown formatted plain-text and returns an appropriate HTML
-// representation.
-func ToHTML(input []byte) ([]byte, error) {
-	converter := LoadMarkdownWriter()
-	buf, ok := bufPool.Get().(*bytes.Buffer)
-	if !ok {
-		return input, errors.New("unable to retrieve buffer")
+// Decode converts the file content bytes known to be in a specific charset (looked up
+// by its standard name/label, e.g. "windows-1252", "iso-8859-1",
+// "shift_jis") into a UTF-8 Go string.
+func (f *File) Decode(charsetLabel string) (string, error) {
+	enc, err := htmlindex.Get(charsetLabel) // resolves the standard label to an encoding.Encoding
+	if err != nil {
+		return "", fmt.Errorf("unknown charset label %q: %w", charsetLabel, err)
 	}
-	defer func() {
-		buf.Reset()
-		defer bufPool.Put(buf)
-	}()
-	if err := converter.Convert(input, buf); err != nil {
-		return nil, fmt.Errorf("format as markdown: %w", err)
+	out, err := enc.NewDecoder().Bytes(f.Content)
+	if err != nil {
+		return "", fmt.Errorf("decoding as %q: %w", charsetLabel, err)
 	}
-	return buf.Bytes(), nil
+	return string(out), nil
 }
 
 func (fm *FrontMatter) GetCreatedDate() time.Time {
@@ -132,6 +130,24 @@ func ReadFile(dir embed.FS, path string, details fs.DirEntry) (*File, error) {
 		JsonLD:      &jsonld,
 		Content:     buf.Bytes(),
 	}, nil
+}
+
+// ToHTML treats the given string data input as Markdown formatted plain-text and returns an appropriate HTML
+// representation.
+func ToHTML(input []byte) ([]byte, error) {
+	converter := LoadMarkdownWriter()
+	buf, ok := bufPool.Get().(*bytes.Buffer)
+	if !ok {
+		return input, errors.New("unable to retrieve buffer")
+	}
+	defer func() {
+		buf.Reset()
+		defer bufPool.Put(buf)
+	}()
+	if err := converter.Convert(input, buf); err != nil {
+		return nil, fmt.Errorf("format as markdown: %w", err)
+	}
+	return buf.Bytes(), nil
 }
 
 func generateJSONLD(frontmatter *FrontMatter) (json.RawMessage, error) {

@@ -29,6 +29,7 @@ func DecodeOpengraph(data []byte) (*OpenGraph, error) {
 	}
 
 	og := &OpenGraph{
+		OpenGraphObject:      &opengraph.OpenGraphObject{},
 		AdditionalProperties: make(map[string]string),
 	}
 

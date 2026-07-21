@@ -7,6 +7,7 @@ require (
 	github.com/mattn/go-isatty v0.0.22
 	go.opentelemetry.io/otel/trace v1.44.0
 	golang.org/x/net v0.56.0
+	golang.org/x/text v0.38.0
 )
 
 require (
@@ -49,7 +50,6 @@ require (
 	golang.org/x/mod v0.36.0 // indirect
 	golang.org/x/sync v0.21.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
-	golang.org/x/text v0.38.0 // indirect
 	golang.org/x/tools v0.45.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
@@ -68,7 +68,7 @@ require (
 	github.com/jub0bs/cors v1.0.4
 	github.com/knadh/koanf/maps v0.1.2 // indirect
 	github.com/knadh/koanf/v2 v2.3.5
-	github.com/lmittmann/tint v1.1.3
+	github.com/lmittmann/tint v1.2.0
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect

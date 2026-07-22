@@ -9,4 +9,3 @@ mkdir -p ~/.config/fish \
     && echo "~/.local/bin/oh-my-posh init fish | source" >>~/.config/fish/config.fish \
     && echo 'eval "$(~/.local/bin/oh-my-posh init bash)""' >>~/.bashrc
 
-exit 0

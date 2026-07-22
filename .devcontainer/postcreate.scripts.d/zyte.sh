@@ -6,4 +6,3 @@ set -x
 sudo curl -L -O /usr/local/share/ca-certificates/zyte-ca.crt https://docs.zyte.com/_static/zyte-ca.crt && \
     sudo update-ca-certificates
 
-exit 0

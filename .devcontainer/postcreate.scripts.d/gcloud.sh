@@ -15,4 +15,3 @@ source /home/vscode/google-cloud-sdk/path.bash.inc && \
     gcloud auth application-default login --scopes=https://www.googleapis.com/auth/androidpublisher,https://www.googleapis.com/auth/cloud-platform && \
     gcloud auth application-default set-quota-project foragd
 
-exit 0

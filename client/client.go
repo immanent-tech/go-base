@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	"github.com/immanent-tech/go-base/config"
+	"github.com/immanent-tech/go-base/validation"
 )
 
 const (
@@ -38,6 +39,9 @@ var initConfig = sync.OnceValue(func() error {
 	}
 	if err := cfg.DefaultHTTPRequestTimeout.UnmarshalText([]byte("45s")); err != nil {
 		return fmt.Errorf("set default timeout: %w", err)
+	}
+	if err := validation.Validate.Struct(cfg); err != nil {
+		return fmt.Errorf("invalid client config: %w", err)
 	}
 	return nil
 })

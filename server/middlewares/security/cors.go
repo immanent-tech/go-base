@@ -10,10 +10,10 @@ import (
 	"sync"
 
 	"github.com/immanent-tech/go-base/config"
+	"github.com/immanent-tech/go-base/pkg/htmx"
 	"github.com/immanent-tech/go-base/validation"
 	"github.com/jub0bs/cors"
 
-	"github.com/angelofallars/htmx-go"
 	slogctx "github.com/veqryn/slog-context"
 )
 

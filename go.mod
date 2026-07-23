@@ -7,6 +7,7 @@ require (
 	github.com/mattn/go-isatty v0.0.22
 	go.opentelemetry.io/otel/trace v1.44.0
 	golang.org/x/net v0.56.0
+	golang.org/x/text v0.38.0
 )
 
 require (
@@ -49,7 +50,6 @@ require (
 	golang.org/x/mod v0.36.0 // indirect
 	golang.org/x/sync v0.21.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
-	golang.org/x/text v0.38.0 // indirect
 	golang.org/x/tools v0.45.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
@@ -57,7 +57,6 @@ require (
 require (
 	codeberg.org/readeck/go-readability/v2 v2.1.2
 	github.com/a-h/templ v0.3.1020
-	github.com/angelofallars/htmx-go v0.5.0
 	github.com/fatih/color v1.19.0
 	github.com/go-chi/chi/v5 v5.3.1
 	github.com/go-json-experiment/json v0.0.0-20260623181947-01eb4420fa68

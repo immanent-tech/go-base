@@ -11,7 +11,7 @@ FROM docker.io/alpine:${ALPINE_VERSION} AS builder
 COPY --from=golang /usr/local/go/ /usr/local/go/
 
 # Install additional packages
-RUN apk update && apk add sudo openssh curl git bash fish micro graphviz python
+RUN apk update && apk add sudo openssh curl git bash fish micro graphviz python3
 
 # # Add non-root user
 ARG USER_NAME=vscode

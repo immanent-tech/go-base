@@ -12,6 +12,20 @@ import (
 	"github.com/a-h/templ"
 )
 
+// ID represents an id attribute in a HTML element.
+type ID string
+
+// Target returns the id attribute as a target (i.e., for htmx requests). This
+// is the base id string with a "#" prefix.
+func (a ID) Target() string {
+	return "#" + string(a)
+}
+
+// String returns the id attribute as a string.
+func (a ID) String() string {
+	return string(a)
+}
+
 // Attributes represents htmx hx-* attributes applied to an element.
 type Attributes struct {
 	attributes templ.Attributes

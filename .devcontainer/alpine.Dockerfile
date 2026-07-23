@@ -11,7 +11,7 @@ FROM docker.io/alpine:${ALPINE_VERSION} AS builder
 COPY --from=golang /usr/local/go/ /usr/local/go/
 
 # Install additional packages
-RUN apk update && apk add sudo openssh curl git bash fish micro graphviz python3
+RUN apk update && apk add sudo openssh curl git bash fish micro
 
 # # Add non-root user
 ARG USER_NAME=vscode
@@ -42,5 +42,7 @@ RUN export XDG_RUNTIME_DIR=/tmp/$USER_UID-runtime-dir \
     && mkdir $XDG_RUNTIME_DIR \
     && chmod 0700 $XDG_RUNTIME_DIR
 ENV XDG_RUNTIME_DIR=/tmp/$USER_UID-runtime-dir
+
+ENV BASE_CONTAINER=alpine
 
 ENTRYPOINT ["/usr/bin/fish"]

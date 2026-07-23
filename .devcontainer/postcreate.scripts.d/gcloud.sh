@@ -2,6 +2,10 @@
 
 set -x
 
+if [[ ${BASE_CONTAINER} == "alpine" ]]; then
+    sudo apk add python3
+fi
+
 # Install gcloud cli.
 cd $HOME && \
     curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-x86_64.tar.gz && \

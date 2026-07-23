@@ -9,8 +9,8 @@ import (
 	"golang.org/x/net/html"
 )
 
-// checkMediumSignals walks the HTML tree and counts Medium-specific markers.
-func checkMediumSignals(n *html.Node) int {
+// CheckMediumSignals walks the HTML tree and counts Medium-specific markers.
+func CheckMediumSignals(n *html.Node) int {
 	count := 0
 
 	var walk func(*html.Node)

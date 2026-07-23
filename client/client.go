@@ -28,23 +28,40 @@ var cfg *Config
 
 var client *resty.Client
 
-var Load = sync.OnceValues(func() (*resty.Client, error) {
+var initConfig = sync.OnceValue(func() error {
 	cfg = &Config{
 		UserAgent:             config.GetAppName() + "/" + config.GetVersion(),
 		DefaultRequestRetries: 3,
 	}
-
-	if err := cfg.DefaultHTTPRequestTimeout.UnmarshalText([]byte("45s")); err != nil {
-		return nil, fmt.Errorf("set default timeout: %w", err)
-	}
-
 	if err := config.Load(configEnvPrefix, cfg); err != nil {
+		return fmt.Errorf("load config: %w", err)
+	}
+	if err := cfg.DefaultHTTPRequestTimeout.UnmarshalText([]byte("45s")); err != nil {
+		return fmt.Errorf("set default timeout: %w", err)
+	}
+	return nil
+})
+
+// Load will init the client config from the environment and create a new client instance. Subsequent calls to Load
+// return the existing client, allowing re-use.
+var Load = sync.OnceValues(func() (*resty.Client, error) {
+	if err := initConfig(); err != nil {
 		return nil, fmt.Errorf("load config: %w", err)
 	}
-
 	client = resty.New().
 		SetHeader("User-Agent", cfg.UserAgent).
 		SetHeader("Accept", "*/*").
 		SetHeader("Accept-Encoding", "gzip, deflate")
 	return client, nil
 })
+
+// SetUserAgent sets the User-Agent header to be used on all requests. This overwrites any existing value.
+func SetUserAgent(userAgent string) error {
+	var err error
+	client, err = Load()
+	if err != nil {
+		return fmt.Errorf("load client: %w", err)
+	}
+	client = client.SetHeader("User-Agent", userAgent)
+	return nil
+}

@@ -404,27 +404,82 @@ var bufPool = sync.Pool{
 var whitespaceRe = regexp.MustCompile(`\s+`)
 
 // ToPlainText converts a HTML encoded string to plain text.
-func ToPlainText(s string) string {
-	doc, err := html.Parse(strings.NewReader(s))
-	if err != nil {
-		return s
-	}
+func ToPlainText(data []byte) string {
+	tokenizer := html.NewTokenizer(bytes.NewReader(data))
+	var buf bytes.Buffer
+	skipDepth := 0
 
-	// Walk the HTML and remove.
-	var b strings.Builder
-	var walk func(*html.Node)
-	walk = func(n *html.Node) {
-		if n.Type == html.TextNode {
-			b.WriteString(n.Data)
+	for {
+		tt := tokenizer.Next()
+		switch tt {
+		case html.ErrorToken:
+			return whitespaceRe.ReplaceAllString(string(bytes.TrimSpace(buf.Bytes())), " ")
+
+		case html.StartTagToken, html.SelfClosingTagToken:
+			tok := tokenizer.Token()
+			if skipContentTags[tok.Data] {
+				skipDepth++
+			}
+			if blockTags[tok.Data] {
+				buf.WriteString("\n\n")
+			}
+			writeAttrText(&buf, tok, skipDepth)
+
+		case html.EndTagToken:
+			tok := tokenizer.Token()
+			if skipContentTags[tok.Data] && skipDepth > 0 {
+				skipDepth--
+			}
+			if blockTags[tok.Data] {
+				buf.WriteString("\n\n")
+			}
+
+		case html.TextToken:
+			if skipDepth == 0 {
+				// tokenizer.Text() already decodes entities (&amp; -> &).
+				buf.Write(tokenizer.Text())
+				buf.WriteByte(' ')
+			}
 		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			walk(c)
+	}
+}
+
+// skipContentTags holds elements whose text content should never be embedded (scripts, styles, and non-visible
+// metadata).
+var skipContentTags = map[string]bool{
+	"script": true, "style": true, "noscript": true,
+	"head": true, "title": true, "meta": true, "link": true,
+}
+
+// blockTags forces a paragraph break so ChunkBytes's "\n\n" boundary detection still finds sensible break points in the
+// extracted text.
+var blockTags = map[string]bool{
+	"p": true, "div": true, "br": true, "li": true, "tr": true,
+	"h1": true, "h2": true, "h3": true, "h4": true, "h5": true, "h6": true,
+	"blockquote": true, "section": true, "article": true, "table": true,
+}
+
+// attrTextKeys lists attributes whose values carry human-readable content worth embedding, rather than machine-facing
+// metadata (id, class, href, etc).
+var attrTextKeys = map[string]bool{
+	"alt": true,
+	// "title":      true,
+	"aria-label": true,
+}
+
+// writeAttrText pulls alt/title/aria-label off a tag and appends them to buf as plain text. These are written
+// regardless of skipDepth for alt/ aria-label (an <img> inside a <div> isn't "script content"), but honoring skipDepth
+// keeps them out of genuinely non-visible containers like <head>.
+func writeAttrText(buf *bytes.Buffer, tok html.Token, skipDepth int) {
+	if skipDepth > 0 {
+		return
+	}
+	for _, attr := range tok.Attr {
+		key := strings.ToLower(attr.Key)
+		val := strings.TrimSpace(attr.Val)
+		if attrTextKeys[key] && val != "" {
+			buf.WriteString(val)
+			buf.WriteString(". ")
 		}
 	}
-	walk(doc)
-
-	// Remove excess whitespace formatting.
-	normalised := whitespaceRe.ReplaceAllString(strings.TrimSpace(b.String()), " ")
-
-	return normalised
 }

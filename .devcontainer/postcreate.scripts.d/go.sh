@@ -19,7 +19,7 @@ if [[ -e go.mod ]]; then
         curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.8.0
 fi
 
-if [[ -e ./.custom-gcl.yml ]]; then
+if [[ -e ./.custom-gcl.yaml ]]; then
     golangci-lint custom && \
     mv /tmp/golangci-lint-v2 $(go env GOPATH)/bin/
 fi

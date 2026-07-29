@@ -144,7 +144,7 @@ func HandleAssets(urlPrefix string, unHashed bool) http.Handler {
 				return
 			}
 		} else {
-			realPath = filepath.Join("content", reqPath)
+			realPath = filepath.Join("./", reqPath)
 		}
 
 		f, err := manifest.fsys.Open(realPath)

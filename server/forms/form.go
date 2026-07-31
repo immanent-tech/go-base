@@ -42,28 +42,28 @@ type FormInput interface {
 // will perform validation of the type and will return the type and a boolean
 // true if it is valid. If decoding the form submission fails, a non-nill error
 // is returned.
-func DecodeForm[T FormInput](req *http.Request) (T, bool, error) {
+func DecodeForm[T FormInput](req *http.Request) (T, error) {
 	if err := req.ParseForm(); err != nil {
 		var obj T
-		return obj, false, fmt.Errorf("%w: %w", ErrDecode, err)
+		return obj, fmt.Errorf("%w: %w", ErrDecode, err)
 	}
 	obj, err := decodeObject[T](req)
 	if err != nil {
-		return obj, false, fmt.Errorf("%w: %w", ErrDecode, err)
+		return obj, fmt.Errorf("%w: %w", ErrDecode, err)
 	}
-	return obj, true, nil
+	return obj, nil
 }
 
-func DecodeMultiPartForm[T FormInput](req *http.Request) (T, bool, error) {
+func DecodeMultiPartForm[T FormInput](req *http.Request) (T, error) {
 	if err := req.ParseMultipartForm(defaultMaxSize); err != nil {
 		var obj T
-		return obj, false, fmt.Errorf("%w: %w", ErrDecode, err)
+		return obj, fmt.Errorf("%w: %w", ErrDecode, err)
 	}
 	obj, err := decodeObject[T](req)
 	if err != nil {
-		return obj, false, fmt.Errorf("%w: %w", ErrDecode, err)
+		return obj, fmt.Errorf("%w: %w", ErrDecode, err)
 	}
-	return obj, true, nil
+	return obj, nil
 }
 
 func decodeObject[T FormInput](req *http.Request) (T, error) {

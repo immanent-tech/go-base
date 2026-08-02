@@ -10,17 +10,17 @@ import (
 )
 
 // CheckMediumSignals walks the HTML tree and counts Medium-specific markers.
-func CheckMediumSignals(n *html.Node) int {
+func CheckMediumSignals(node *html.Node) int {
 	count := 0
 
 	var walk func(*html.Node)
-	walk = func(n *html.Node) {
-		if n.Type == html.ElementNode {
-			switch n.Data {
+	walk = func(node *html.Node) {
+		if node.Type == html.ElementNode {
+			switch node.Data {
 			case "meta":
-				name := attrVal(n, "name")
-				content := attrVal(n, "content")
-				property := attrVal(n, "property")
+				name := attrVal(node, "name")
+				content := attrVal(node, "content")
+				property := attrVal(node, "property")
 
 				// Primary signal: Medium's generator tag
 				if strings.EqualFold(name, "generator") &&
@@ -40,27 +40,25 @@ func CheckMediumSignals(n *html.Node) int {
 				}
 
 			case "link":
-				href := attrVal(n, "href")
 				// Medium serves assets from miro.medium.com
-				if strings.Contains(href, "miro.medium.com") ||
+				if href := attrVal(node, "href"); strings.Contains(href, "miro.medium.com") ||
 					strings.Contains(href, "medium.com") {
 					count++
 				}
 
 			case "script":
-				src := attrVal(n, "src")
 				// Medium's JS bundles come from medium.com
-				if strings.Contains(src, "medium.com") ||
+				if src := attrVal(node, "src"); strings.Contains(src, "medium.com") ||
 					strings.Contains(src, "miro.medium.com") {
 					count++
 				}
 			}
 		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
+		for c := node.FirstChild; c != nil; c = c.NextSibling {
 			walk(c)
 		}
 	}
-	walk(n)
+	walk(node)
 	return count
 }
 

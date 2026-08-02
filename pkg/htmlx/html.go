@@ -371,34 +371,23 @@ func ExtractImageFromHTML(content string) (string, string, error) {
 	return "", "", fmt.Errorf("%w: no image found", ErrParseHTML)
 }
 
-// SanitizeHTMLString will parse and re-render the given string containing HTML. In doing so, the HTML is hopefully
-// sanitized and reformatted to be well-formed HTML.
-func SanitizeHTMLString(input string) (string, error) {
+// Sanitize performs sanitization of HTML. With no options specified, it ensures the input string parses correctly and
+// returns well-formed HTML as a string. Additional options can be specified to perform additional sanitization steps,
+// such as stripping all attributes from all elements and removing whitespace-only elements.
+func Sanitize(input string, opts ...SanitizeOption) (string, error) {
+	var root *html.Node
+
+	// Parse as either full or partial HTML document.
 	trimmed := strings.TrimSpace(input)
 	lower := strings.ToLower(trimmed)
-
-	// Create a buffer for sanitized html.
-	buf, ok := bufPool.Get().(*bytes.Buffer)
-	if !ok {
-		return "", errors.New("unable to retrieve buffer")
-	}
-	buf.Reset()
-	defer bufPool.Put(buf)
-
 	if isFullDocument := strings.HasPrefix(lower, "<!doctype") ||
 		strings.Contains(lower, "<html"); isFullDocument {
-		// Strip full document.
-		rawHTML, err := html.Parse(strings.NewReader(input))
+		var err error
+		root, err = html.Parse(strings.NewReader(input))
 		if err != nil {
 			return "", fmt.Errorf("parse html: %w", err)
 		}
-
-		if err := html.Render(buf, rawHTML); err != nil {
-			return "", fmt.Errorf("render html: %w", err)
-		}
-		return buf.String(), nil
 	} else {
-		// Strip fragment.
 		nodes, err := html.ParseFragment(strings.NewReader(input), &html.Node{
 			Type:     html.ElementNode,
 			Data:     "body",
@@ -407,15 +396,38 @@ func SanitizeHTMLString(input string) (string, error) {
 		if err != nil {
 			return "", fmt.Errorf("parse html fragment: %w", err)
 		}
+		wrapper := &html.Node{Type: html.ElementNode, Data: "body"}
 		for n := range slices.Values(nodes) {
-			if err := html.Render(buf, n); err != nil {
-				return "", fmt.Errorf("render html fragment: %w", err)
-			}
+			wrapper.AppendChild(n)
 		}
+		root = wrapper
 	}
 
+	// Perform any requested sanitisation options.
+	for option := range slices.Values(opts) {
+		option(root)
+	}
+
+	// Create a buffer for sanitized HTML.
+	buf, ok := bufPool.Get().(*bytes.Buffer)
+	if !ok {
+		return "", errors.New("unable to retrieve buffer")
+	}
+	buf.Reset()
+	defer bufPool.Put(buf)
+
+	// Write out sanitized HTML.
+	for c := root.FirstChild; c != nil; c = c.NextSibling {
+		if err := html.Render(buf, c); err != nil {
+			return "", fmt.Errorf("render html: %w", err)
+		}
+	}
 	return buf.String(), nil
+
 }
+
+// SanitizeOption is a functional option for performing a specific sanitization to the given HTML node.
+type SanitizeOption func(node *html.Node)
 
 var whitespaceRe = regexp.MustCompile(`\s+`)
 

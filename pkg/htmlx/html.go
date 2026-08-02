@@ -420,15 +420,22 @@ func SanitizeHTMLString(input string) (string, error) {
 var whitespaceRe = regexp.MustCompile(`\s+`)
 
 // ToPlainText converts a HTML encoded string to plain text.
-func ToPlainText(data []byte) string {
+func ToPlainText(data []byte) (string, error) {
 	tokenizer := html.NewTokenizer(bytes.NewReader(data))
-	var buf bytes.Buffer
+
+	buf, ok := bufPool.Get().(*bytes.Buffer)
+	if !ok {
+		return "", errors.New("unable to retrieve buffer")
+	}
+	buf.Reset()
+	defer bufPool.Put(buf)
+
 	skipDepth := 0
 
 	for {
 		switch tt := tokenizer.Next(); tt {
 		case html.ErrorToken:
-			return whitespaceRe.ReplaceAllString(string(bytes.TrimSpace(buf.Bytes())), " ")
+			return whitespaceRe.ReplaceAllString(string(bytes.TrimSpace(buf.Bytes())), " "), nil
 
 		case html.StartTagToken, html.SelfClosingTagToken:
 			tok := tokenizer.Token()
@@ -438,7 +445,7 @@ func ToPlainText(data []byte) string {
 			if blockTags[tok.Data] {
 				buf.WriteString("\n\n")
 			}
-			writeAttrText(&buf, tok, skipDepth)
+			writeAttrText(buf, tok, skipDepth)
 
 		case html.EndTagToken:
 			tok := tokenizer.Token()

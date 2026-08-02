@@ -244,16 +244,16 @@ func findFaviconCandidates(page []byte) []Favicon {
 		}
 
 		var rel, href, typ, size string
-		for _, a := range tok.Attr {
-			switch strings.ToLower(a.Key) {
+		for attr := range slices.Values(tok.Attr) {
+			switch strings.ToLower(attr.Key) {
 			case "rel":
-				rel = strings.ToLower(a.Val)
+				rel = strings.ToLower(attr.Val)
 			case "href":
-				href = a.Val
+				href = attr.Val
 			case "type":
-				typ = a.Val
+				typ = attr.Val
 			case "sizes":
-				size = a.Val
+				size = attr.Val
 			}
 		}
 
@@ -296,7 +296,7 @@ func FindFavicon(
 		return nil, "", Favicon{}, errors.New("no favicon candidates found")
 	}
 
-	for _, cand := range candidates {
+	for cand := range slices.Values(candidates) {
 		abs, err := resolve(pageURL, cand.href)
 		if err != nil {
 			continue
@@ -373,32 +373,48 @@ func ExtractImageFromHTML(content string) (string, string, error) {
 
 // SanitizeHTMLString will parse and re-render the given string containing HTML. In doing so, the HTML is hopefully
 // sanitized and reformatted to be well-formed HTML.
-func SanitizeHTMLString(rawStr string) (string, error) {
-	rawHTML, err := html.Parse(strings.NewReader(rawStr))
-	if err != nil {
-		return "", fmt.Errorf("unable to parse data as HTML: %w", err)
-	}
+func SanitizeHTMLString(input string) (string, error) {
+	trimmed := strings.TrimSpace(input)
+	lower := strings.ToLower(trimmed)
 
+	// Create a buffer for sanitized html.
 	buf, ok := bufPool.Get().(*bytes.Buffer)
 	if !ok {
 		return "", errors.New("unable to retrieve buffer")
 	}
-	defer func() {
-		buf.Reset()
-		defer bufPool.Put(buf)
-	}()
+	buf.Reset()
+	defer bufPool.Put(buf)
 
-	if err := html.Render(buf, rawHTML); err != nil {
-		return "", fmt.Errorf("cannot write sanitized HTML: %w", err)
+	if isFullDocument := strings.HasPrefix(lower, "<!doctype") ||
+		strings.Contains(lower, "<html"); isFullDocument {
+		// Strip full document.
+		rawHTML, err := html.Parse(strings.NewReader(input))
+		if err != nil {
+			return "", fmt.Errorf("parse html: %w", err)
+		}
+
+		if err := html.Render(buf, rawHTML); err != nil {
+			return "", fmt.Errorf("render html: %w", err)
+		}
+		return buf.String(), nil
+	} else {
+		// Strip fragment.
+		nodes, err := html.ParseFragment(strings.NewReader(input), &html.Node{
+			Type:     html.ElementNode,
+			Data:     "body",
+			DataAtom: atom.Body,
+		})
+		if err != nil {
+			return "", fmt.Errorf("parse html fragment: %w", err)
+		}
+		for n := range slices.Values(nodes) {
+			if err := html.Render(buf, n); err != nil {
+				return "", fmt.Errorf("render html fragment: %w", err)
+			}
+		}
 	}
 
 	return buf.String(), nil
-}
-
-var bufPool = sync.Pool{
-	New: func() any {
-		return new(bytes.Buffer)
-	},
 }
 
 var whitespaceRe = regexp.MustCompile(`\s+`)
@@ -410,8 +426,7 @@ func ToPlainText(data []byte) string {
 	skipDepth := 0
 
 	for {
-		tt := tokenizer.Next()
-		switch tt {
+		switch tt := tokenizer.Next(); tt {
 		case html.ErrorToken:
 			return whitespaceRe.ReplaceAllString(string(bytes.TrimSpace(buf.Bytes())), " ")
 
@@ -482,4 +497,10 @@ func writeAttrText(buf *bytes.Buffer, tok html.Token, skipDepth int) {
 			buf.WriteString(". ")
 		}
 	}
+}
+
+var bufPool = sync.Pool{
+	New: func() any {
+		return new(bytes.Buffer)
+	},
 }

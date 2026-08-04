@@ -147,30 +147,40 @@ func WithHXTarget(target string) AttributesOption {
 // WithHXVals sets the hx-vals attribute. It can handle a string value directly or a map of values which will get
 // marshaled into a JSON string representation.
 func WithHXVals(vals any) AttributesOption {
-	return func(a *Attributes) {
+	return func(attrs *Attributes) {
 		switch values := vals.(type) {
 		case string:
-			a.setAttribute("hx-vals", values)
+			attrs.setAttribute("hx-vals", values)
 		default:
 			marshaled, err := templ.JSONString(values)
 			if err != nil {
 				return
 			}
-			a.setAttribute("hx-vals", marshaled)
+			attrs.setAttribute("hx-vals", marshaled)
 		}
 	}
 }
 
 // WithHXPushURL sets hx-push-url to true.
-func WithHXPushURL() AttributesOption {
+func WithHXPushURL(value any) AttributesOption {
 	return func(a *Attributes) {
-		a.setAttribute("hx-push-url", true)
+		switch v := value.(type) {
+		case string:
+			a.setAttribute("hx-push-url", v)
+		case bool:
+			a.setAttribute("hx-push-url", v)
+		}
 	}
 }
 
 // WithHXReplaceURL sets hx-replace-url to true.
-func WithHXReplaceURL() AttributesOption {
+func WithHXReplaceURL(value any) AttributesOption {
 	return func(a *Attributes) {
-		a.setAttribute("hx-replace-url", true)
+		switch v := value.(type) {
+		case string:
+			a.setAttribute("hx-push-url", v)
+		case bool:
+			a.setAttribute("hx-push-url", v)
+		}
 	}
 }

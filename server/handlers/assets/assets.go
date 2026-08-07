@@ -102,12 +102,12 @@ func hashFilename(logical, hash string) string {
 	return fmt.Sprintf("%s.%s%s", base, hash, ext)
 }
 
-// GetPath returns the hashed, servable path for a logical asset name.
-// Use this from templ templates: assets.GetPath(m, "scripts.js") -> "/assets/scripts.a1b2c3d4.js"
+// GetAssetPath returns the hashed, servable path for a logical asset name.
+// Use this from templ templates: assets.GetAssetPath(m, "scripts.js") -> "/assets/scripts.a1b2c3d4.js"
 //
 // If the asset isn't found, it logs and returns the logical name unchanged
 // so a missed rename fails loudly (404) rather than silently breaking the page.
-func GetPath(ctx context.Context, logical string) string {
+func GetAssetPath(ctx context.Context, logical string) string {
 	logical = strings.TrimPrefix(logical, "/")
 	hashed, ok := manifest.pathFor[logical]
 	if !ok {
@@ -118,11 +118,8 @@ func GetPath(ctx context.Context, logical string) string {
 	return hashed
 }
 
-// HandleAssets returns an http.Handler that serves assets at urlPrefix.
-// Hashed paths (the normal case) get long-lived immutable caching.
-// Unhashed/unknown paths fall through with no special caching, which lets
-// you 404 cleanly or serve other static files from the same prefix if needed.
-func HandleAssets(urlPrefix string, unHashed bool) http.Handler {
+// HandleAssets returns an http.Handler that serves hashed assets at urlPrefix.
+func HandleAssets(urlPrefix string) http.Handler {
 	if urlPrefix != "" {
 		urlPrefix = "/" + strings.Trim(urlPrefix, "/") + "/"
 	}
@@ -132,50 +129,89 @@ func HandleAssets(urlPrefix string, unHashed bool) http.Handler {
 			return
 		}
 
+		// Trim the prefix.
 		reqPath := strings.TrimPrefix(req.URL.Path, urlPrefix)
-		reqPath = strings.TrimPrefix(reqPath, "/")
 
-		var realPath string
-		if !unHashed {
-			var found bool
-			realPath, found = manifest.fileFor[reqPath]
-			if !found {
-				http.NotFound(res, req)
-				return
-			}
-		} else {
-			realPath = filepath.Join("./", reqPath)
+		// Fetch the embedded file.
+		var embeddedFile string
+		var found bool
+		embeddedFile, found = manifest.fileFor[reqPath]
+		if !found {
+			http.NotFound(res, req)
+			return
 		}
-
-		f, err := manifest.fsys.Open(realPath)
+		f, err := manifest.fsys.Open(embeddedFile)
 		if err != nil {
 			http.NotFound(res, req)
 			return
 		}
 		defer f.Close()
 
-		if !unHashed {
-			// Hashed filenames are content-addressed: the same name will always
-			// mean the same bytes, so it's safe to cache for a very long time.
-			res.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
-		} else {
-			// Default is to cache for 1 week.
-			res.Header().Set("Cache-Control", "public, max-age=604800, s-maxage=43200")
+		// Set appropriate headers.
+		res.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		res.Header().Set("Content-Type", contentTypeFor(embeddedFile))
+		res.Header().Set("Cross-Origin-Resource-Policy", "cross-origin")
+
+		// Serve the file.
+		if rs, ok := f.(interface {
+			fs.File
+			Seek(offset int64, whence int) (int64, error)
+		}); ok {
+			http.ServeContent(res, req, embeddedFile, manifest.modTime, rs)
+			return
 		}
-		res.Header().Set("Content-Type", contentTypeFor(realPath))
+		// Fallback for files that don't support seeking (rare with embed.FS, but kept for safety).
+		data, err := fs.ReadFile(manifest.fsys, embeddedFile)
+		if err != nil {
+			http.Error(res, "internal error", http.StatusInternalServerError)
+			return
+		}
+		res.Write(data)
+	})
+}
+
+// HandleFiles returns an http.Handler that serves files from urlPrefix. If root is not empty, it will be added back to
+// the file path after stripping the prefix to correctly map to the file in the embedded FS. If the urlPrefix and root
+// are empty, files will be served directly from the embedded FS.
+func HandleFiles(urlPrefix, root string) http.Handler {
+	if urlPrefix != "" {
+		urlPrefix = "/" + strings.Trim(urlPrefix, "/") + "/"
+	}
+	if root != "" {
+		root = strings.Trim(root, "/")
+	}
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		if req.Method != http.MethodGet && req.Method != http.MethodHead {
+			http.Error(res, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		// Trim the prefix.
+		reqPath := strings.TrimPrefix(req.URL.Path, urlPrefix)
+
+		embeddedFile := filepath.Join("./", root, reqPath)
+		// Fetch the embedded file.
+		f, err := manifest.fsys.Open(embeddedFile)
+		if err != nil {
+			http.NotFound(res, req)
+			return
+		}
+		defer f.Close()
+
+		// Default is to cache for 1 week.
+		res.Header().Set("Cache-Control", "public, max-age=604800, s-maxage=43200")
+		res.Header().Set("Content-Type", contentTypeFor(embeddedFile))
 		res.Header().Set("Cross-Origin-Resource-Policy", "cross-origin")
 
 		if rs, ok := f.(interface {
 			fs.File
 			Seek(offset int64, whence int) (int64, error)
 		}); ok {
-			http.ServeContent(res, req, realPath, manifest.modTime, rs)
+			http.ServeContent(res, req, embeddedFile, manifest.modTime, rs)
 			return
 		}
-
-		// Fallback for files that don't support seeking (rare with embed.FS,
-		// but kept for safety).
-		data, err := fs.ReadFile(manifest.fsys, realPath)
+		// Fallback for files that don't support seeking (rare with embed.FS, but kept for safety).
+		data, err := fs.ReadFile(manifest.fsys, embeddedFile)
 		if err != nil {
 			http.Error(res, "internal error", http.StatusInternalServerError)
 			return

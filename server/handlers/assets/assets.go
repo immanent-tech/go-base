@@ -40,6 +40,7 @@ type Manifest struct {
 // (useful if your embed.FS embeds "web/content" but you want asset paths
 // like "scripts.js" rather than "web/content/scripts.js").
 func New(fsys fs.FS, root string) error {
+	root = strings.Trim(root, "/")
 	err := sync.OnceValue(func() error {
 		manifest = &Manifest{
 			pathFor: make(map[string]string),
@@ -48,24 +49,22 @@ func New(fsys fs.FS, root string) error {
 			modTime: time.Now(),
 		}
 
-		root = strings.Trim(root, "/")
-
-		err := fs.WalkDir(fsys, ".", func(p string, d fs.DirEntry, err error) error {
+		err := fs.WalkDir(fsys, ".", func(path string, direntry fs.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
-			if d.IsDir() {
+			if direntry.IsDir() {
 				return nil
 			}
 
-			data, err := fs.ReadFile(fsys, p)
+			data, err := fs.ReadFile(fsys, path)
 			if err != nil {
-				return fmt.Errorf("reading %s: %w", p, err)
+				return fmt.Errorf("reading %s: %w", path, err)
 			}
 
 			hash := strconv.FormatUint(xxh3.Hash(data), 36)
 
-			logical := p
+			logical := path
 			if root != "" {
 				logical = strings.TrimPrefix(logical, root+"/")
 			}
@@ -73,7 +72,7 @@ func New(fsys fs.FS, root string) error {
 			hashed := hashFilename(logical, hash)
 
 			manifest.pathFor[logical] = hashed
-			manifest.fileFor[hashed] = p // keep the real fs path for Open
+			manifest.fileFor[hashed] = path // keep the real fs path for Open
 
 			return nil
 		})

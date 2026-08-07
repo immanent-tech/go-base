@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/fatih/color"
@@ -51,7 +52,7 @@ type Config struct {
 var cfg *Config
 
 // New creates a new logger with the given options.
-func New() *slog.Logger {
+var New = sync.OnceValue(func() *slog.Logger {
 	// Read config from environment.
 	cfg = &Config{
 		Level:        "info",
@@ -90,7 +91,7 @@ func New() *slog.Logger {
 		)
 	} else {
 		handlers = append(handlers,
-			tint.NewHandler(os.Stderr, consoleOptions(cfg.currentLevel, os.Stderr.Fd())),
+			tint.NewTextHandler(os.Stderr, consoleOptions(cfg.currentLevel, os.Stderr.Fd())),
 		)
 	}
 
@@ -122,7 +123,7 @@ func New() *slog.Logger {
 	logger.Info("Logger initialised.")
 
 	return logger
-}
+})
 
 // GetLogLevel returns the current default log level.
 func GetLogLevel() slog.Level {

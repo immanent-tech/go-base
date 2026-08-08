@@ -23,7 +23,7 @@ import (
 var imageExtensions = []string{"jpg", "jpeg", "png", "webp", "gif", "avif", "svg", "tiff", "bmp"}
 
 // ExtractImage searches the given HTML string and returns the URL and alt tag of the first image it finds.
-func ExtractImage(input string) (string, string, error) {
+func ExtractImage(input, pageURL string) (string, string, error) {
 	if !IsHTML(input) {
 		return "", "", fmt.Errorf("%w: content is not HTML", ErrParseHTML)
 	}
@@ -55,22 +55,29 @@ func ExtractImage(input string) (string, string, error) {
 		root = wrapper
 	}
 
-	var url, alt string
+	var rawURL, alt string
 
 	for n := range root.Descendants() {
 		if n.Type == html.ElementNode && n.DataAtom == atom.Img {
-
 			for a := range slices.Values(n.Attr) {
 				switch a.Key {
 				case "src":
-					url = a.Val
+					rawURL = a.Val
 				case "alt":
 					alt = a.Val
 				}
 			}
 
-			if url != "" {
-				return url, alt, nil
+			if rawURL != "" {
+				imgURL, err := url.Parse(rawURL)
+				if err != nil {
+					return "", "", fmt.Errorf("parse image URL: %w", err)
+				}
+				// If it is not an absolute URL, resolve it relative to the page URL.
+				if !imgURL.IsAbs() {
+					absURL, _ := url.Parse(pageURL)
+					return absURL.ResolveReference(imgURL).String(), alt, nil
+				}
 			}
 		}
 	}

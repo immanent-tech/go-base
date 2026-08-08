@@ -5,14 +5,19 @@ package htmlx
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/indaco/teseo/opengraph"
 	"golang.org/x/net/html"
 )
+
+var ErrNoOpenGraphData = errors.New("no opengraph data found")
 
 type OpenGraph struct {
 	*opengraph.OpenGraphObject
@@ -20,10 +25,24 @@ type OpenGraph struct {
 	AdditionalProperties map[string]string
 }
 
+// GetOpengraphData returns the parsed Opengraph data from the page at the given URL.
+func GetOpengraphData(ctx context.Context, sourceURL string) (*OpenGraph, error) {
+	pageSource, err := GetHTML(ctx, sourceURL)
+	if err != nil {
+		return nil, fmt.Errorf("get HTML: %w", err)
+	}
+	head := NewHeadReader(bytes.NewReader(pageSource.Bytes()), MaxHeaderSizeBytes)
+	og, err := DecodeOpengraph(head)
+	if err != nil {
+		return nil, fmt.Errorf("get opengraph data: %w", err)
+	}
+	return og, nil
+}
+
 // DecodeOpengraph will parse the given byte array and return any Open Graph metadata found within. Use with existing
 // HTML page data.
-func DecodeOpengraph(data []byte) (*OpenGraph, error) {
-	htmlData, err := html.Parse(bytes.NewReader(data))
+func DecodeOpengraph(data io.Reader) (*OpenGraph, error) {
+	htmlData, err := html.Parse(data)
 	if err != nil {
 		return nil, fmt.Errorf("parse data: %w", err)
 	}
@@ -33,17 +52,25 @@ func DecodeOpengraph(data []byte) (*OpenGraph, error) {
 		AdditionalProperties: make(map[string]string),
 	}
 
-	visitNode(htmlData, og)
+	extractOpenGraphDataFromNode(htmlData, og)
+
+	if og.Title == "" {
+		return nil, ErrNoOpenGraphData
+	}
 
 	return og, nil
 }
 
 // Get retrieves additional properties for OpenGraph. Returns the specified element and whether it was found.
-func (og OpenGraph) Get(fieldName string) (value string, found bool) {
+func (og OpenGraph) Get(fieldName string) (string, bool) {
+	var (
+		value string
+		found bool
+	)
 	if og.AdditionalProperties != nil {
 		value, found = og.AdditionalProperties[fieldName]
 	}
-	return
+	return value, found
 }
 
 // Set stores additional properties for OpenGraph.
@@ -253,21 +280,21 @@ type metaTag struct {
 	Content  string `xml:"content,attr"`
 }
 
-// visitNode recursively walks the node tree, extracting og: meta tags.
-// Returns true to signal the caller to stop descending (entered <body>).
-func visitNode(n *html.Node, og *OpenGraph) bool {
-	if n.Type == html.ElementNode {
-		switch n.Data {
+// extractOpenGraphDataFromNode recursively walks the node tree, extracting og: meta tags. Returns true to signal the
+// caller to stop descending (entered <body>).
+func extractOpenGraphDataFromNode(node *html.Node, og *OpenGraph) bool {
+	if node.Type == html.ElementNode {
+		switch node.Data {
 		case "body":
 			return true
 		case "meta":
-			extractMeta(n, og)
+			extractMeta(node, og)
 			return false
 		}
 	}
 
-	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		if visitNode(c, og) {
+	for c := node.FirstChild; c != nil; c = c.NextSibling {
+		if extractOpenGraphDataFromNode(c, og) {
 			return true
 		}
 	}

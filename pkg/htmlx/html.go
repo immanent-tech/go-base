@@ -5,19 +5,26 @@ package htmlx
 
 import (
 	"bytes"
+	"compress/gzip"
+	"context"
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"regexp"
 	"slices"
 	"strings"
 	"sync"
 
-	"codeberg.org/readeck/go-readability/v2"
 	"github.com/immanent-tech/go-base/client"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
+)
+
+var (
+	MaxHeaderSizeBytes       = 256 * 1024
+	MaxBodySizeBytes   int64 = 10 * 1024 * 1024 // 10 MB limit
 )
 
 // Common HTML tags.
@@ -88,6 +95,9 @@ func (h *HeadReader) Read(page []byte) (int, error) {
 		return 0, io.EOF
 	}
 	n, err := h.r.Read(page)
+	if err != nil {
+		return n, fmt.Errorf("read header: %w", err)
+	}
 	h.total += n
 	// Look for </head> in what we just read to stop early
 	chunk := strings.ToLower(string(page[:n]))
@@ -95,12 +105,58 @@ func (h *HeadReader) Read(page []byte) (int, error) {
 		h.done = true
 		return idx + len("</head>"), io.EOF
 	}
-	return n, fmt.Errorf("read header: %w", err)
+	return n, nil
+}
+
+// GetHTML will fetch the HTML source from the page at the given URL.
+func GetHTML(ctx context.Context, strURL string) (*bytes.Buffer, error) {
+	sourceURL, err := url.Parse(strURL)
+	if err != nil {
+		return nil, fmt.Errorf("parse URL %s: %w", strURL, err)
+	}
+
+	// Create a buffer for the feed data.
+	var pageBuf bytes.Buffer
+
+	client, err := client.Load()
+	if err != nil {
+		return nil, fmt.Errorf("load client: %w", err)
+	}
+
+	resp, err := client.R().
+		SetContext(ctx).
+		SetDoNotParseResponse(true).
+		Get(sourceURL.String())
+	if err != nil {
+		return nil, fmt.Errorf("fetch URL: %w", err)
+	}
+	if resp.IsError() || resp.StatusCode() == http.StatusNoContent {
+		return nil, fmt.Errorf("fetch URL: %s", resp.Status())
+	}
+	defer resp.RawBody().Close()
+	if resp.Header().Get("Content-Encoding") == "gzip" {
+		// For gzipped response, uncompress first.
+		reader, err := gzip.NewReader(resp.RawBody())
+		if err != nil {
+			return nil, fmt.Errorf("read gzip response: %w", err)
+		}
+		defer reader.Close()
+		limitReader := io.LimitReader(reader, MaxBodySizeBytes)
+		if _, err := io.Copy(&pageBuf, limitReader); err != nil {
+			return nil, fmt.Errorf("read response: %w", err)
+		}
+	} else {
+		// Read response directly.
+		if _, err := io.Copy(&pageBuf, resp.RawBody()); err != nil {
+			return nil, fmt.Errorf("read response: %w", err)
+		}
+	}
+
+	return &pageBuf, nil
 }
 
 // IsHTML returns a boolean indicating whether the given string contains HTML. It can detect both a full HTML document
 // or partial HTML content.
-
 func IsHTML(s string) bool {
 	score := 0
 
@@ -211,164 +267,6 @@ func FindAllHTMLNodes(n *html.Node, tag string) []*html.Node {
 		results = append(results, FindAllHTMLNodes(c, tag)...)
 	}
 	return results
-}
-
-// Favicon is a favicon link found in <head>.
-type Favicon struct {
-	href string
-	rel  string // e.g. "icon", "apple-touch-icon", "shortcut icon"
-	typ  string // e.g. "image/png"
-	size string // e.g. "32x32"
-}
-
-// findFaviconCandidates fetches the page and parses <link> tags in <head> that look
-// like favicon declarations, plus synthesises the conventional /favicon.ico path.
-func findFaviconCandidates(page []byte) []Favicon {
-	limited := NewHeadReader(bytes.NewReader(page), 256*1024)
-
-	var candidates []Favicon
-	for tokenizer := html.NewTokenizer(limited); ; {
-		tt := tokenizer.Next()
-		if tt == html.ErrorToken {
-			break
-		}
-		if tt != html.StartTagToken && tt != html.SelfClosingTagToken {
-			continue
-		}
-		tok := tokenizer.Token()
-		if tok.Data == "body" {
-			break
-		}
-		if tok.Data != "link" {
-			continue
-		}
-
-		var rel, href, typ, size string
-		for attr := range slices.Values(tok.Attr) {
-			switch strings.ToLower(attr.Key) {
-			case "rel":
-				rel = strings.ToLower(attr.Val)
-			case "href":
-				href = attr.Val
-			case "type":
-				typ = attr.Val
-			case "sizes":
-				size = attr.Val
-			}
-		}
-
-		if href == "" {
-			continue
-		}
-		// Accept any rel that contains "icon"
-		if !strings.Contains(rel, "icon") {
-			continue
-		}
-		candidates = append(candidates, Favicon{href: href, rel: rel, typ: typ, size: size})
-	}
-
-	// Always append the conventional fallback last.
-	candidates = append(candidates, Favicon{href: "/favicon.ico", rel: "conventional"})
-	return candidates
-}
-
-// resolve turns a possibly relative href into an absolute URL based on the page origin.
-func resolve(pageURL, href string) (string, error) {
-	base, err := url.Parse(pageURL)
-	if err != nil {
-		return "", fmt.Errorf("parse url %s: %w", pageURL, err)
-	}
-	ref, err := url.Parse(href)
-	if err != nil {
-		return "", fmt.Errorf("parse url %s: %w", href, err)
-	}
-	return base.ResolveReference(ref).String(), nil
-}
-
-// FindFavicon tries each candidate in order and returns the first one that
-// responds with a 2xx status and a non-empty body.
-func FindFavicon(
-	page []byte,
-	pageURL string,
-) ([]byte, string, Favicon, error) {
-	candidates := findFaviconCandidates(page)
-	if len(candidates) == 0 {
-		return nil, "", Favicon{}, errors.New("no favicon candidates found")
-	}
-
-	for cand := range slices.Values(candidates) {
-		abs, err := resolve(pageURL, cand.href)
-		if err != nil {
-			continue
-		}
-		client, err := client.Load()
-		if err != nil {
-			return nil, "", Favicon{}, fmt.Errorf("load client: %w", err)
-		}
-		resp, err := client.R().Get(abs)
-		if err != nil {
-			continue
-		}
-		if resp.StatusCode() < 200 || resp.StatusCode() >= 300 || len(resp.Body()) == 0 {
-			continue
-		}
-		return resp.Body(), abs, cand, nil
-	}
-	return nil, "", Favicon{}, errors.New("no reachable favicon found")
-}
-
-// FindMainImage tries to find a "main" image for the page, using the readability parser.
-func FindMainImage(page []byte, rawURL string) (string, error) {
-	pageURL, err := url.Parse(rawURL)
-	if err != nil {
-		return "", fmt.Errorf("parse url: %w", err)
-	}
-
-	node, err := html.Parse(bytes.NewReader(page))
-	if err != nil {
-		return "", fmt.Errorf("parse html: %w", err)
-	}
-	// Parse using readability to find main content details.
-	rdData, err := readability.FromDocument(node, pageURL)
-	if err != nil {
-		return "", fmt.Errorf("find image: %w", err)
-	}
-	if rdData.ImageURL() == "" {
-		return "", errors.New("no main image found")
-	}
-	return rdData.ImageURL(), nil
-}
-
-func ExtractImageFromHTML(content string) (string, string, error) {
-	if !IsHTML(content) {
-		return "", "", fmt.Errorf("%w: content is not HTML", ErrParseHTML)
-	}
-	doc, err := html.Parse(strings.NewReader(content))
-	if err != nil {
-		return "", "", fmt.Errorf("%w: %w", ErrParseHTML, err)
-	}
-
-	var url, alt string
-
-	for n := range doc.Descendants() {
-		if n.Type == html.ElementNode && n.DataAtom == atom.Img {
-
-			for a := range slices.Values(n.Attr) {
-				switch a.Key {
-				case "src":
-					url = a.Val
-				case "alt":
-					alt = a.Val
-				}
-			}
-
-			if url != "" {
-				return url, alt, nil
-			}
-		}
-	}
-
-	return "", "", fmt.Errorf("%w: no image found", ErrParseHTML)
 }
 
 // Sanitize performs sanitization of HTML. With no options specified, it ensures the input string parses correctly and

@@ -108,11 +108,25 @@ func (h *HeadReader) Read(page []byte) (int, error) {
 	return n, nil
 }
 
+type Response struct {
+	Status  int
+	Message string
+}
+
+func (e *Response) Error() string { return fmt.Sprintf("%d: %s", e.Status, e.Message) }
+func (e *Response) Unwrap() error { return fmt.Errorf("%d: %s", e.Status, e.Message) }
+
+// HTTPStatus returns the status code of the API error.
+func (e *Response) HTTPStatus() int { return e.Status }
+
 // GetHTML will fetch the HTML source from the page at the given URL.
 func GetHTML(ctx context.Context, strURL string) (*bytes.Buffer, error) {
 	sourceURL, err := url.Parse(strURL)
 	if err != nil {
-		return nil, fmt.Errorf("parse URL %s: %w", strURL, err)
+		return nil, &Response{
+			Status:  http.StatusBadRequest,
+			Message: fmt.Sprintf("parse URL %s: %s", strURL, err.Error()),
+		}
 	}
 
 	// Create a buffer for the feed data.
@@ -120,7 +134,10 @@ func GetHTML(ctx context.Context, strURL string) (*bytes.Buffer, error) {
 
 	client, err := client.Load()
 	if err != nil {
-		return nil, fmt.Errorf("load client: %w", err)
+		return nil, &Response{
+			Status:  http.StatusInternalServerError,
+			Message: fmt.Sprintf("load client: %s", err.Error()),
+		}
 	}
 
 	resp, err := client.R().
@@ -128,27 +145,42 @@ func GetHTML(ctx context.Context, strURL string) (*bytes.Buffer, error) {
 		SetDoNotParseResponse(true).
 		Get(sourceURL.String())
 	if err != nil {
-		return nil, fmt.Errorf("fetch URL: %w", err)
+		return nil, &Response{
+			Status:  http.StatusInternalServerError,
+			Message: fmt.Sprintf("fetch URL %s: %s", sourceURL.String(), err.Error()),
+		}
 	}
 	if resp.IsError() || resp.StatusCode() == http.StatusNoContent {
-		return nil, fmt.Errorf("fetch URL: %s", resp.Status())
+		return nil, &Response{
+			Status:  resp.StatusCode(),
+			Message: fmt.Sprintf("fetch URL %s: %s", sourceURL.String(), resp.Status()),
+		}
 	}
 	defer resp.RawBody().Close()
 	if resp.Header().Get("Content-Encoding") == "gzip" {
 		// For gzipped response, uncompress first.
 		reader, err := gzip.NewReader(resp.RawBody())
 		if err != nil {
-			return nil, fmt.Errorf("read gzip response: %w", err)
+			return nil, &Response{
+				Status:  http.StatusUnprocessableEntity,
+				Message: fmt.Sprintf("read gzip response: %s", err.Error()),
+			}
 		}
 		defer reader.Close()
 		limitReader := io.LimitReader(reader, MaxBodySizeBytes)
 		if _, err := io.Copy(&pageBuf, limitReader); err != nil {
-			return nil, fmt.Errorf("read response: %w", err)
+			return nil, &Response{
+				Status:  http.StatusUnprocessableEntity,
+				Message: fmt.Sprintf("read response: %s", err.Error()),
+			}
 		}
 	} else {
 		// Read response directly.
 		if _, err := io.Copy(&pageBuf, resp.RawBody()); err != nil {
-			return nil, fmt.Errorf("read response: %w", err)
+			return nil, &Response{
+				Status:  http.StatusUnprocessableEntity,
+				Message: fmt.Sprintf("read response: %s", err.Error()),
+			}
 		}
 	}
 

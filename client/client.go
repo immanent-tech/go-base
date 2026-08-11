@@ -55,7 +55,8 @@ var Load = sync.OnceValues(func() (*resty.Client, error) {
 	client = resty.New().
 		SetHeader("User-Agent", cfg.UserAgent).
 		SetHeader("Accept", "*/*").
-		SetHeader("Accept-Encoding", "gzip, deflate")
+		SetHeader("Accept-Encoding", "gzip, deflate").
+		SetRedirectPolicy(resty.FlexibleRedirectPolicy(3))
 	return client, nil
 })
 

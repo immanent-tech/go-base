@@ -32,6 +32,10 @@ type ResponseHandling struct {
 //
 // https://htmx.org/docs/#config
 type Config struct {
+	// Number of entries to cache in history. Defaults to 10.
+	HistoryCacheSize int `json:"historyCacheSize" validate:"omitempty,gte=0"`
+	// Whether to issue a full page refresh on history misses rather than use an AJAX request. Defaults to false.
+	RefreshOnHistoryMiss bool `json:"refreshOnHistoryMiss"`
 	// AllowNestedOOBSwaps configures whether to process OOB swaps on elements that are nested within the main response
 	// element.
 	AllowNestedOOBSwaps bool `json:"allowNestedOobSwaps"`
@@ -49,14 +53,13 @@ type Config struct {
 	GlobalViewTransitions bool `json:"globalViewTransitions"`
 	// ResponseHandling configures how to handle various HTTP response codes.
 	ResponseHandling []*ResponseHandling `json:"responseHandling,omitzero"`
-	// Number of entries to cache in history. Defaults to 10.
-	HistoryCacheSize int `json:"historyCacheSize" validate:"omitempty,gte=0"`
-	// Whether to issue a full page refresh on history misses rather than use an AJAX request. Defaults to false.
-	RefreshOnHistoryMiss bool `json:"refreshOnHistoryMiss"`
 	// Defaults to ‘instant’, the scroll behavior when using the show modifier with hx-swap. The allowed values are
 	// instant (scrolling should happen instantly in a single jump), smooth (scrolling should animate smoothly) and auto
 	// (scroll behavior is determined by the computed value of scroll-behavior).
 	ScrollBehavior string `json:"scrollBehavior" validate:"omitempty,oneof=instant smooth auto"`
+	// Defaults to false. If it is set to true, the inheritance of attributes is completely disabled and you can
+	// explicitly specify the inheritance with the hx-inherit attribute.
+	DisableInheritance bool `json:"disableInheritance"`
 }
 
 // HXLocationRequest defines the value of the HX-Location header.

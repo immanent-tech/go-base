@@ -3,9 +3,9 @@ module github.com/immanent-tech/go-base
 go 1.26.5
 
 require (
-	github.com/knadh/koanf/providers/env/v2 v2.0.0
+	github.com/knadh/koanf/providers/env/v2 v2.0.1
 	github.com/mattn/go-isatty v0.0.24
-	go.opentelemetry.io/otel/trace v1.44.0
+	go.opentelemetry.io/otel/trace v1.45.0
 	golang.org/x/net v0.57.0
 	golang.org/x/text v0.40.0
 )
@@ -18,7 +18,7 @@ require (
 	github.com/dprotaso/go-yit v0.0.0-20220510233725-9ba8df137936 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.13 // indirect
 	github.com/getkin/kin-openapi v0.135.0 // indirect
-	github.com/go-logr/logr v1.4.3 // indirect
+	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-openapi/jsonpointer v0.22.4 // indirect
 	github.com/go-openapi/swag/jsonname v0.25.4 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
@@ -44,7 +44,7 @@ require (
 	github.com/speakeasy-api/openapi v1.19.2 // indirect
 	github.com/vmware-labs/yaml-jsonpath v0.3.2 // indirect
 	github.com/woodsbury/decimal128 v1.4.0 // indirect
-	go.opentelemetry.io/otel v1.44.0 // indirect
+	go.opentelemetry.io/otel v1.45.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.54.0 // indirect
 	golang.org/x/mod v0.37.0 // indirect
@@ -66,7 +66,7 @@ require (
 	github.com/indaco/teseo v0.2.5
 	github.com/jub0bs/cors v1.0.5
 	github.com/knadh/koanf/maps v0.1.2 // indirect
-	github.com/knadh/koanf/v2 v2.3.5
+	github.com/knadh/koanf/v2 v2.3.6
 	github.com/lmittmann/tint v1.2.0
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/mitchellh/copystructure v1.2.0 // indirect

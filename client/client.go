@@ -5,6 +5,7 @@ package client
 
 import (
 	"fmt"
+	"log/slog"
 	"sync"
 
 	"github.com/go-resty/resty/v2"
@@ -56,7 +57,8 @@ var Load = sync.OnceValues(func() (*resty.Client, error) {
 		SetHeader("User-Agent", cfg.UserAgent).
 		SetHeader("Accept", "*/*").
 		SetHeader("Accept-Encoding", "gzip, deflate").
-		SetRedirectPolicy(resty.FlexibleRedirectPolicy(3))
+		SetRedirectPolicy(resty.FlexibleRedirectPolicy(3)).
+		SetLogger(&logger{Logger: slog.Default()})
 	return client, nil
 })
 
@@ -69,4 +71,20 @@ func SetUserAgent(userAgent string) error {
 	}
 	client = client.SetHeader("User-Agent", userAgent)
 	return nil
+}
+
+type logger struct {
+	*slog.Logger
+}
+
+func (l *logger) Errorf(format string, v ...any) {
+	l.Error(fmt.Sprintf(format, v...))
+}
+
+func (l *logger) Warnf(format string, v ...any) {
+	l.Warn(fmt.Sprintf(format, v...))
+}
+
+func (l *logger) Debugf(format string, v ...any) {
+	l.Debug(fmt.Sprintf(format, v...))
 }

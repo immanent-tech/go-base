@@ -33,33 +33,33 @@ type ResponseHandling struct {
 // https://htmx.org/docs/#config
 type Config struct {
 	// Number of entries to cache in history. Defaults to 10.
-	HistoryCacheSize int `json:"historyCacheSize" validate:"omitempty,gte=0"`
+	HistoryCacheSize int `json:"historyCacheSize" validate:"omitzero,gte=0"`
 	// Whether to issue a full page refresh on history misses rather than use an AJAX request. Defaults to false.
-	RefreshOnHistoryMiss bool `json:"refreshOnHistoryMiss"`
+	RefreshOnHistoryMiss *bool `json:"refreshOnHistoryMiss,omitempty"`
 	// AllowNestedOOBSwaps configures whether to process OOB swaps on elements that are nested within the main response
 	// element.
-	AllowNestedOOBSwaps bool `json:"allowNestedOobSwaps"`
+	AllowNestedOOBSwaps *bool `json:"allowNestedOobSwaps,omitempty"`
 	// InlineStyleNonce configures a none to be added to inline styles created by htmx.
-	InlineStyleNonce string `json:"inlineStyleNonce,omitempty"`
+	InlineStyleNonce string `json:"inlineStyleNonce,omitzero"`
 	// InlineStyleNonce configures a none to be added to inline scripts created by htmx.
-	InlineScriptNonce string `json:"inlineScriptNonce,omitempty"`
+	InlineScriptNonce string `json:"inlineScriptNonce,omitzero"`
 	// IncludeIndicatorStyles configures whether htmx will dynamically add indicator styles inline for requests.
-	IncludeIndicatorStyles bool `json:"includeIndicatorStyles"`
+	IncludeIndicatorStyles *bool `json:"includeIndicatorStyles,omitempty"`
 	// HistoryRestoreAsHxRequest configures whether to treat history cache miss full page reload requests as a
 	// “HX-Request” by returning this response header. This should always be disabled when using HX-Request header to
 	// optionally return partial responses
-	HistoryRestoreAsHxRequest bool `json:"historyRestoreAsHxRequest"`
+	HistoryRestoreAsHxRequest *bool `json:"historyRestoreAsHxRequest,omitempty"`
 	// GlobalViewTransitions configures whether htmx will use the View Transition API when swapping in new content.
-	GlobalViewTransitions bool `json:"globalViewTransitions"`
+	GlobalViewTransitions *bool `json:"globalViewTransitions,omitempty"`
 	// ResponseHandling configures how to handle various HTTP response codes.
 	ResponseHandling []*ResponseHandling `json:"responseHandling,omitzero"`
 	// Defaults to ‘instant’, the scroll behavior when using the show modifier with hx-swap. The allowed values are
 	// instant (scrolling should happen instantly in a single jump), smooth (scrolling should animate smoothly) and auto
 	// (scroll behavior is determined by the computed value of scroll-behavior).
-	ScrollBehavior string `json:"scrollBehavior" validate:"omitempty,oneof=instant smooth auto"`
+	ScrollBehavior string `json:"scrollBehavior,omitzero" validate:"omitzero,oneof=instant smooth auto"`
 	// Defaults to false. If it is set to true, the inheritance of attributes is completely disabled and you can
 	// explicitly specify the inheritance with the hx-inherit attribute.
-	DisableInheritance bool `json:"disableInheritance"`
+	DisableInheritance *bool `json:"disableInheritance,omitempty"`
 }
 
 // HXLocationRequest defines the value of the HX-Location header.

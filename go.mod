@@ -1,13 +1,13 @@
 module github.com/immanent-tech/go-base
 
-go 1.26.5
+go 1.26.6
 
 require (
 	github.com/knadh/koanf/providers/env/v2 v2.0.1
 	github.com/mattn/go-isatty v0.0.24
 	go.opentelemetry.io/otel/trace v1.45.0
-	golang.org/x/net v0.57.0
-	golang.org/x/text v0.40.0
+	golang.org/x/net v0.58.0
+	golang.org/x/text v0.41.0
 )
 
 require (
@@ -46,11 +46,11 @@ require (
 	github.com/woodsbury/decimal128 v1.4.0 // indirect
 	go.opentelemetry.io/otel v1.45.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.54.0 // indirect
-	golang.org/x/mod v0.37.0 // indirect
+	golang.org/x/crypto v0.55.0 // indirect
+	golang.org/x/mod v0.38.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/tools v0.47.0 // indirect
+	golang.org/x/tools v0.48.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
@@ -58,13 +58,13 @@ require (
 	codeberg.org/readeck/go-readability/v2 v2.1.2
 	github.com/a-h/templ v0.3.1020
 	github.com/fatih/color v1.19.0
-	github.com/go-chi/chi/v5 v5.3.1
-	github.com/go-json-experiment/json v0.0.0-20260623181947-01eb4420fa68
+	github.com/go-chi/chi/v5 v5.3.2
+	github.com/go-json-experiment/json v0.0.0-20260820222146-c27c302e5fc3
 	github.com/go-playground/form/v4 v4.3.0
 	github.com/go-playground/validator/v10 v10.30.3
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/indaco/teseo v0.2.5
-	github.com/jub0bs/cors v1.0.5
+	github.com/jub0bs/cors v1.1.0
 	github.com/knadh/koanf/maps v0.1.2 // indirect
 	github.com/knadh/koanf/v2 v2.3.6
 	github.com/lmittmann/tint v1.2.0

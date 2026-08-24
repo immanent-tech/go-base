@@ -59,7 +59,6 @@ require (
 	github.com/a-h/templ v0.3.1020
 	github.com/fatih/color v1.19.0
 	github.com/go-chi/chi/v5 v5.3.2
-	github.com/go-json-experiment/json v0.0.0-20260820222146-c27c302e5fc3
 	github.com/go-playground/form/v4 v4.3.0
 	github.com/go-playground/validator/v10 v10.30.3
 	github.com/go-resty/resty/v2 v2.17.2
@@ -75,7 +74,6 @@ require (
 	github.com/samber/slog-multi v1.8.0
 	github.com/veqryn/slog-context v0.9.0
 	github.com/veqryn/slog-context/otel v0.9.0
-	github.com/veqryn/slog-json v0.5.0
 	github.com/yuin/goldmark v1.8.5
 	github.com/zeebo/xxh3 v1.1.0
 	go.abhg.dev/goldmark/frontmatter v0.3.0

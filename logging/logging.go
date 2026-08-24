@@ -13,15 +13,12 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/go-json-experiment/json"
-	"github.com/go-json-experiment/json/jsontext"
 	"github.com/immanent-tech/go-base/config"
 	"github.com/lmittmann/tint"
 	"github.com/mattn/go-isatty"
 	slogmulti "github.com/samber/slog-multi"
 	slogctx "github.com/veqryn/slog-context"
 	slogotel "github.com/veqryn/slog-context/otel"
-	slogjson "github.com/veqryn/slog-json"
 )
 
 const (
@@ -84,7 +81,7 @@ var New = sync.OnceValue(func() *slog.Logger {
 	if config.DetectContainerRuntime() != config.RuntimeNone && cfg.Format != "console" {
 		cfg.LogFile = ""
 		instrumentedHandler := HandlerWithSpanContext(
-			slogjson.NewHandler(os.Stderr, containerConsoleOptions(cfg.currentLevel)),
+			slog.NewJSONHandler(os.Stderr, containerConsoleOptions(cfg.currentLevel)),
 		)
 		handlers = append(handlers,
 			instrumentedHandler,
@@ -101,7 +98,7 @@ var New = sync.OnceValue(func() *slog.Logger {
 			fmt.Fprintln(os.Stderr, "unable to open log file: %w", err)
 		} else {
 			handlers = append(handlers,
-				slogjson.NewHandler(logFH, generateFileOpts(cfg.currentLevel)),
+				slog.NewTextHandler(logFH, generateFileOpts(cfg.currentLevel)),
 			)
 		}
 	}
@@ -130,18 +127,11 @@ func GetLogLevel() slog.Level {
 	return cfg.currentLevel
 }
 
-func containerConsoleOptions(level slog.Level) *slogjson.HandlerOptions {
-	opts := &slogjson.HandlerOptions{
+func containerConsoleOptions(level slog.Level) *slog.HandlerOptions {
+	opts := &slog.HandlerOptions{
 		AddSource:   false,
 		Level:       level,
 		ReplaceAttr: containerReplacer,
-		JSONOptions: json.JoinOptions(
-			json.Deterministic(true),
-			jsontext.EscapeForJS(false),
-			jsontext.EscapeForHTML(true),
-			jsontext.SpaceAfterColon(true),
-			jsontext.SpaceAfterComma(true),
-		),
 	}
 	if level == LevelTrace {
 		opts.AddSource = true
@@ -163,8 +153,8 @@ func consoleOptions(level slog.Level, fd uintptr) *tint.Options {
 	return opts
 }
 
-func generateFileOpts(level slog.Level) *slogjson.HandlerOptions {
-	opts := &slogjson.HandlerOptions{
+func generateFileOpts(level slog.Level) *slog.HandlerOptions {
+	opts := &slog.HandlerOptions{
 		AddSource:   false,
 		Level:       level,
 		ReplaceAttr: fileLevelReplacer,

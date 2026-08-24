@@ -32,8 +32,6 @@ github.com/getkin/kin-openapi v0.135.0 h1:751SjYfbiwqukYuVjwYEIKNfrSwS5YpA7DZnKS
 github.com/getkin/kin-openapi v0.135.0/go.mod h1:6dd5FJl6RdX4usBtFBaQhk9q62Yb2J0Mk5IhUO/QqFI=
 github.com/go-chi/chi/v5 v5.3.2 h1:5YQkICvTCSZ25hoRsyJazN0scjzKGiu4VAUc7H1o1nY=
 github.com/go-chi/chi/v5 v5.3.2/go.mod h1:R+tYY2hNuVUUjxoPtqUdgBqevM9s9njzkTLutVsOCto=
-github.com/go-json-experiment/json v0.0.0-20260820222146-c27c302e5fc3 h1:UADEEmDKgfXbtnGJZ97beY5XLo9ZechG1nlU4KnRrkE=
-github.com/go-json-experiment/json v0.0.0-20260820222146-c27c302e5fc3/go.mod h1:tphK2c80bpPhMOI4v6bIc2xWywPfbqi1Z06+RcrMkDg=
 github.com/go-logr/logr v1.4.4 h1:tG4xh9yMsRCAiodLVTxyrkzSZ9+o0L1Kg/+cPVcbP/8=
 github.com/go-logr/logr v1.4.4/go.mod h1:9T104GzyrTigFIr8wt5mBrctHMim0Nb2HLGrmQ40KvY=
 github.com/go-openapi/jsonpointer v0.22.4 h1:dZtK82WlNpVLDW2jlA1YCiVJFVqkED1MegOUy9kR5T4=
@@ -179,8 +177,6 @@ github.com/veqryn/slog-context v0.9.0 h1:VNXHBWufRGfKiumi7cYoh7p2iElquZ4v8AnAumF
 github.com/veqryn/slog-context v0.9.0/go.mod h1:l953waOLsWW6hArZeJDGGKZYLrsOIPBeJ/QQnOA8RU0=
 github.com/veqryn/slog-context/otel v0.9.0 h1:jGUEZ7dbgFv1ZmngPyOJEYxfeZHWe1YpcL5xoEaMUds=
 github.com/veqryn/slog-context/otel v0.9.0/go.mod h1:eLmCq9MQ0FOEGJEKa2Sz4fiT1xdmr8Z0ZrU2WSnbRBs=
-github.com/veqryn/slog-json v0.5.0 h1:L/J6C73H8hXCnB3pbncTLXOlDKwOJlDTkPYzdIPJZWE=
-github.com/veqryn/slog-json v0.5.0/go.mod h1:WGXCZ5xyiDNcTUsRZDjl92iMC7ovLe0UreU1C1iMyMg=
 github.com/vmware-labs/yaml-jsonpath v0.3.2 h1:/5QKeCBGdsInyDCyVNLbXyilb61MXGi9NP674f9Hobk=
 github.com/vmware-labs/yaml-jsonpath v0.3.2/go.mod h1:U6whw1z03QyqgWdgXxvVnQ90zN1BWz5V+51Ewf8k+rQ=
 github.com/woodsbury/decimal128 v1.4.0 h1:xJATj7lLu4f2oObouMt2tgGiElE5gO6mSWUjQsBgUlc=

@@ -79,7 +79,7 @@ type HXLocationRequest struct {
 	// How the response will be swapped in relative to the target.
 	Swap string `json:"swap,omitzero"`
 	// Values to submit with the request.
-	Values map[string]any `json:"values,omitzero"`
+	Values any `json:"values,omitzero"`
 	// Headers to submit with the request.
 	Headers map[string]string `json:"headers,omitzero"`
 	// Allows you to select the content you want swapped from a response.

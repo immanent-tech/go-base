@@ -34,7 +34,7 @@ const defaultMaxSize = 32 << 20
 
 // FormInput represents form input data. It has methods to test if the data is valid and to sanitise the input data.
 type FormInput interface {
-	Valid() error
+	Validate() error
 	Sanitise() error
 }
 
@@ -77,7 +77,7 @@ func decodeObject[T FormInput](req *http.Request) (T, error) {
 		return obj, fmt.Errorf("%w: %w", ErrSanitise, err)
 	}
 	// Validate the object.
-	if err := obj.Valid(); err != nil {
+	if err := obj.Validate(); err != nil {
 		return obj, fmt.Errorf("%w: %w", ErrValidation, err)
 	}
 	return obj, nil

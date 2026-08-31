@@ -47,6 +47,18 @@ func DecodeForm[T FormInput](req *http.Request) (T, error) {
 		var obj T
 		return obj, fmt.Errorf("%w: %w", ErrDecode, err)
 	}
+	switch req.Method {
+	case http.MethodGet:
+		if len(req.Form) == 0 {
+			var obj T
+			return obj, nil
+		}
+	case http.MethodPost:
+		if len(req.PostForm) == 0 {
+			var obj T
+			return obj, nil
+		}
+	}
 	obj, err := decodeObject[T](req)
 	if err != nil {
 		return obj, fmt.Errorf("%w: %w", ErrDecode, err)

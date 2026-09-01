@@ -16,7 +16,7 @@ if [[ -e go.mod ]]; then
         go install github.com/air-verse/air@latest && \
         go install github.com/a-h/templ/cmd/templ@latest && \
         go install github.com/magefile/mage@latest && \
-        curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.8.0
+        curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.13.2
 fi
 
 if [[ -e ./.custom-gcl.yaml ]]; then

@@ -62,6 +62,7 @@ require (
 	github.com/go-playground/form/v4 v4.3.0
 	github.com/go-playground/validator/v10 v10.30.3
 	github.com/go-resty/resty/v2 v2.17.2
+	github.com/goforj/godump v1.9.1
 	github.com/indaco/teseo v0.2.5
 	github.com/jub0bs/cors v1.1.0
 	github.com/knadh/koanf/maps v0.1.2 // indirect

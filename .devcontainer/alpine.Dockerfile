@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: 	AGPL-3.0-or-later
 
 ARG ALPINE_VERSION=3.24.1@sha256:79ff19e9084a00eece421b2523fb93e22d730e2c0e525905de047e848e56d95f
-ARG GO_VERSION=1.27.0-alpine3.24@sha256:c0ef102fd47cc7cfb3db3e93c4830f500307e37dad1dca44a3795e783cb0bf58
+ARG GO_VERSION=1.27.1-alpine3.24@sha256:f86f1a6701e3dcc445fec097a42f78b758f15950ccf032c2d3e54e2754d32fdb
 
 FROM docker.io/golang:${GO_VERSION} AS golang
 FROM docker.io/alpine:${ALPINE_VERSION} AS builder
@@ -27,6 +27,7 @@ RUN addgroup --gid $USER_GID $USER_NAME \
 
 ENV XDG_RUNTIME_DIR=/run/user/$USER_UID
 RUN mkdir -p $XDG_RUNTIME_DIR && chmod 0700 $XDG_RUNTIME_DIR && chown $USER_UID:$USER_GID $XDG_RUNTIME_DIR
+RUN mkdir -p /datahome/fish /datahome/bash && chown -R $USER_NAME /datahome
 
 USER $USER_NAME
 
@@ -42,6 +43,13 @@ RUN export XDG_RUNTIME_DIR=/tmp/$USER_UID-runtime-dir \
     && mkdir $XDG_RUNTIME_DIR \
     && chmod 0700 $XDG_RUNTIME_DIR
 ENV XDG_RUNTIME_DIR=/tmp/$USER_UID-runtime-dir
+
+# Save shell history.
+RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/datahome/bash/.bash_history" \
+    && mkdir -p /home/${USER_NAME}/.config/fish \
+    && touch /datahome/bash/.bash_history \
+    && echo 'set -gx XDG_DATA_HOME /datahome' >> /home/${USER_NAME}/.config/fish/config.fish \
+    && echo "$SNIPPET" >> "/home/$USER_NAME/.bashrc"
 
 ENV BASE_CONTAINER=alpine
 

@@ -1,11 +1,30 @@
 module github.com/immanent-tech/go-base
 
-go 1.26.6
+go 1.27.1
 
 require (
+	codeberg.org/readeck/go-readability/v2 v2.1.2
+	github.com/a-h/templ v0.3.1020
+	github.com/fatih/color v1.19.0
+	github.com/go-chi/chi/v5 v5.3.2
+	github.com/go-playground/form/v4 v4.3.0
+	github.com/go-playground/validator/v10 v10.30.3
+	github.com/go-resty/resty/v2 v2.17.2
+	github.com/indaco/teseo v0.2.5
+	github.com/jub0bs/cors v1.1.0
 	github.com/knadh/koanf/providers/env/v2 v2.0.1
+	github.com/knadh/koanf/v2 v2.3.6
+	github.com/lmittmann/tint v1.2.0
 	github.com/mattn/go-isatty v0.0.24
-	go.opentelemetry.io/otel/trace v1.45.0
+	github.com/microcosm-cc/bluemonday v1.0.27
+	github.com/samber/slog-chi v1.19.1
+	github.com/samber/slog-multi v1.8.0
+	github.com/veqryn/slog-context v0.9.0
+	github.com/veqryn/slog-context/otel v0.9.0
+	github.com/yuin/goldmark v1.8.5
+	github.com/zeebo/xxh3 v1.1.0
+	go.abhg.dev/goldmark/frontmatter v0.3.0
+	go.opentelemetry.io/otel/trace v1.46.0
 	golang.org/x/net v0.58.0
 	golang.org/x/text v0.41.0
 )
@@ -30,9 +49,12 @@ require (
 	github.com/itlightning/dateparse v0.2.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect
+	github.com/knadh/koanf/maps v0.1.2 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mailru/easyjson v0.9.1 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
+	github.com/mitchellh/copystructure v1.2.0 // indirect
+	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/oapi-codegen/oapi-codegen/v2 v2.7.2 // indirect
 	github.com/oasdiff/yaml v0.0.9 // indirect
@@ -44,40 +66,14 @@ require (
 	github.com/speakeasy-api/openapi v1.19.2 // indirect
 	github.com/vmware-labs/yaml-jsonpath v0.3.2 // indirect
 	github.com/woodsbury/decimal128 v1.4.0 // indirect
-	go.opentelemetry.io/otel v1.45.0 // indirect
-	go.yaml.in/yaml/v3 v3.0.4 // indirect
+	go.opentelemetry.io/otel v1.46.0 // indirect
+	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/crypto v0.55.0 // indirect
 	golang.org/x/mod v0.38.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/tools v0.48.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-)
-
-require (
-	codeberg.org/readeck/go-readability/v2 v2.1.2
-	github.com/a-h/templ v0.3.1020
-	github.com/fatih/color v1.19.0
-	github.com/go-chi/chi/v5 v5.3.2
-	github.com/go-playground/form/v4 v4.3.0
-	github.com/go-playground/validator/v10 v10.30.3
-	github.com/go-resty/resty/v2 v2.17.2
-	github.com/goforj/godump v1.9.1
-	github.com/indaco/teseo v0.2.5
-	github.com/jub0bs/cors v1.1.0
-	github.com/knadh/koanf/maps v0.1.2 // indirect
-	github.com/knadh/koanf/v2 v2.3.6
-	github.com/lmittmann/tint v1.2.0
-	github.com/microcosm-cc/bluemonday v1.0.27
-	github.com/mitchellh/copystructure v1.2.0 // indirect
-	github.com/mitchellh/reflectwalk v1.0.2 // indirect
-	github.com/samber/slog-chi v1.19.1
-	github.com/samber/slog-multi v1.8.0
-	github.com/veqryn/slog-context v0.9.0
-	github.com/veqryn/slog-context/otel v0.9.0
-	github.com/yuin/goldmark v1.8.5
-	github.com/zeebo/xxh3 v1.1.0
-	go.abhg.dev/goldmark/frontmatter v0.3.0
 )
 
 tool github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen

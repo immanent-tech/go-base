@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/go-playground/form/v4"
+	"github.com/immanent-tech/go-base/validation"
 )
 
 var (
@@ -105,5 +106,5 @@ func DecodeMultipartValue(req *http.Request, field string) (string, error) {
 		return "", errors.Join(ErrDecode, err)
 	}
 	// Decode the form values.
-	return req.FormValue(field), nil
+	return validation.SanitizeString(req.FormValue(field)), nil
 }

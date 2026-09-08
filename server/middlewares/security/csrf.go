@@ -6,6 +6,7 @@ package security
 import (
 	"log/slog"
 	"net/http"
+	"slices"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -13,18 +14,42 @@ import (
 	slogctx "github.com/veqryn/slog-context"
 )
 
-func PreventCSRF(next http.Handler) http.Handler {
+// PreventCSRF middleware creates a CSRF handler middleware with the given options.
+func PreventCSRF(options ...CSRFOption) func(next http.Handler) http.Handler {
 	cop := http.NewCrossOriginProtection()
 
-	cop.AddInsecureBypassPattern("/checkout/webhooks")
-	cop.AddInsecureBypassPattern("/mail/webhooks")
+	WithCSRFDenyHandler(CSRFError())(cop)
 
-	cop.SetDenyHandler(http.HandlerFunc(func(res http.ResponseWriter, _ *http.Request) {
-		res.WriteHeader(http.StatusBadRequest)
-		res.Write([]byte("CSRF check failed"))
-	}))
+	for option := range slices.Values(options) {
+		option(cop)
+	}
 
-	return cop.Handler(next)
+	return cop.Handler
+}
+
+// CSRFOption is a functional option applied to the CSRF middleware handler.
+type CSRFOption func(*http.CrossOriginProtection)
+
+// WithCSRFTrustedOrigin option allows all requests with an Origin header which exactly matches the given value.
+func WithCSRFTrustedOrigin(origin string) CSRFOption {
+	return func(cop *http.CrossOriginProtection) {
+		cop.AddTrustedOrigin(origin)
+	}
+}
+
+// WithCSRFInsecureBypassPattern option permits all requests that match the given pattern.
+func WithCSRFInsecureBypassPattern(pattern string) CSRFOption {
+	return func(cop *http.CrossOriginProtection) {
+		cop.AddInsecureBypassPattern(pattern)
+	}
+}
+
+// WithCSRFDenyHandler sets a handler to invoke when a request is rejected. The default if this option is not specified,
+// responds with a 403 Forbidden status.
+func WithCSRFDenyHandler(handler http.HandlerFunc) CSRFOption {
+	return func(cop *http.CrossOriginProtection) {
+		cop.SetDenyHandler(handler)
+	}
 }
 
 // CSRFError handles CSRF error conditions. It will log details about the request then show an error page to the user.

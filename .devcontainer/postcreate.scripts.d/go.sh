@@ -10,16 +10,5 @@ fi
 echo 'set --export PATH "$HOME/go/bin" /go/bin /usr/local/go/bin $PATH' >> ~/.config/fish/config.fish
 echo 'export PATH="$HOME/go/bin:/go/bin:/usr/local/go/bin:$PATH' >> ~/.bashrc
 if [[ -e go.mod ]]; then
-    export PATH="$HOME/go/bin:/go/bin:/usr/local/go/bin:$PATH" && \
-        go mod tidy && \
-        go install golang.org/x/tools/gopls@latest && \
-        go install github.com/air-verse/air@latest && \
-        go install github.com/a-h/templ/cmd/templ@latest && \
-        go install github.com/magefile/mage@latest && \
-        curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.13.2
-fi
-
-if [[ -e ./.custom-gcl.yaml ]]; then
-    golangci-lint custom && \
-    mv /tmp/golangci-lint-v2 $(go env GOPATH)/bin/
+    export PATH="$HOME/go/bin:/go/bin:/usr/local/go/bin:$PATH" && go mod tidy
 fi

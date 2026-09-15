@@ -128,6 +128,12 @@ func GetHTML(ctx context.Context, strURL string) (*bytes.Buffer, error) {
 			Message: fmt.Sprintf("parse URL %s: %s", strURL, err.Error()),
 		}
 	}
+	if !sourceURL.IsAbs() {
+		return nil, &Response{
+			Status:  http.StatusBadRequest,
+			Message: fmt.Sprintf("not an absolute URL: %s", sourceURL.String()),
+		}
+	}
 
 	// Create a buffer for the feed data.
 	var pageBuf bytes.Buffer

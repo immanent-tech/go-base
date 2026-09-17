@@ -7,11 +7,11 @@ require (
 	github.com/a-h/templ v0.3.1020
 	github.com/fatih/color v1.19.0
 	github.com/go-chi/chi/v5 v5.3.2
-	github.com/go-playground/form/v4 v4.3.0
-	github.com/go-playground/validator/v10 v10.30.3
+	github.com/go-playground/form/v4 v4.3.1
+	github.com/go-playground/validator/v10 v10.30.4
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/indaco/teseo v0.2.5
-	github.com/jub0bs/cors v1.1.0
+	github.com/jub0bs/cors v1.1.1
 	github.com/knadh/koanf/providers/env/v2 v2.0.1
 	github.com/knadh/koanf/v2 v2.3.6
 	github.com/lmittmann/tint v1.2.0
@@ -21,7 +21,7 @@ require (
 	github.com/samber/slog-multi v1.8.0
 	github.com/veqryn/slog-context v0.9.0
 	github.com/veqryn/slog-context/otel v0.9.0
-	github.com/yuin/goldmark v1.8.5
+	github.com/yuin/goldmark v1.8.6
 	github.com/zeebo/xxh3 v1.1.0
 	go.abhg.dev/goldmark/frontmatter v0.3.0
 	go.opentelemetry.io/otel/trace v1.46.0
@@ -35,7 +35,7 @@ require (
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dprotaso/go-yit v0.0.0-20220510233725-9ba8df137936 // indirect
-	github.com/gabriel-vasile/mimetype v1.4.13 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.15 // indirect
 	github.com/getkin/kin-openapi v0.135.0 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-openapi/jsonpointer v0.22.4 // indirect
@@ -50,7 +50,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect
 	github.com/knadh/koanf/maps v0.1.2 // indirect
-	github.com/leodido/go-urn v1.4.0 // indirect
+	github.com/leodido/go-urn v1.5.0 // indirect
 	github.com/mailru/easyjson v0.9.1 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect

@@ -1,13 +1,8 @@
-// Copyright 2026 Joshua Rich <joshua.rich@gmail.com>.
-// SPDX-License-Identifier: 	AGPL-3.0-or-later
-
 package textx
 
 import (
-	"fmt"
 	"strings"
 	"time"
-	"unicode"
 )
 
 const (
@@ -19,18 +14,11 @@ const (
 
 // CountWords performs a rough count of the words in the given string.
 func CountWords(text string) int {
-	return len(splitToWords(text))
+	return len(strings.Fields(text))
 }
 
 func ReadingTime(text string) time.Duration {
-	words := splitToWords(text)
-	minutes := float64(len(words)) / float64(wpm)
-	dur, _ := time.ParseDuration(fmt.Sprintf("%.2fm", minutes))
-	return dur
-}
-
-func splitToWords(text string) []string {
-	return strings.FieldsFunc(text, func(r rune) bool {
-		return unicode.IsSpace(r) || unicode.IsPunct(r)
-	})
+	words := len(strings.Fields(text))
+	minutes := float64(words) / float64(wpm)
+	return time.Duration(minutes * float64(time.Minute))
 }

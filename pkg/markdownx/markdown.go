@@ -7,7 +7,6 @@ package markdownx
 import (
 	"bytes"
 	"embed"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -17,7 +16,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/immanent-tech/go-base/config"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
@@ -120,14 +118,8 @@ func ReadFile(dir embed.FS, path string, details fs.DirEntry) (*File, error) {
 		return nil, fmt.Errorf("decode frontmatter: %w", err)
 	}
 
-	jsonld, err := generateJSONLD(&fm)
-	if err != nil {
-		return nil, fmt.Errorf("generate json-ld data: %w", err)
-	}
-
 	return &File{
 		Frontmatter: fm,
-		JsonLD:      &jsonld,
 		Content:     buf.Bytes(),
 	}, nil
 }
@@ -148,39 +140,4 @@ func ToHTML(input []byte) ([]byte, error) {
 		return nil, fmt.Errorf("format as markdown: %w", err)
 	}
 	return buf.Bytes(), nil
-}
-
-func generateJSONLD(frontmatter *FrontMatter) (json.RawMessage, error) {
-	var img string
-	if frontmatter.Image != nil {
-		img = config.GetBaseURL() + *frontmatter.Image
-	}
-	data := map[string]any{
-		"@context":      "https://schema.org",
-		"@type":         "Article",
-		"headline":      frontmatter.Title,
-		"description":   frontmatter.Description,
-		"image":         img,
-		"datePublished": frontmatter.GetCreatedDate(),
-		"dateModified":  frontmatter.GetUpdatedDate(),
-		"author": map[string]any{
-			"@type": "Person",
-			"name":  frontmatter.Author,
-		},
-		"publisher": map[string]any{
-			"@type": "Organization",
-			"name":  "Foragd",
-			"url":   config.GetBaseURL(),
-		},
-		"mainEntityOfPage": map[string]any{
-			"@type": "WebPage",
-			"@id":   config.GetBaseURL() + "/blog/" + frontmatter.Slug,
-		},
-	}
-
-	jsonLD, err := json.Marshal(data)
-	if err != nil {
-		return nil, fmt.Errorf("marshal frontmatter: %w", err)
-	}
-	return jsonLD, nil
 }

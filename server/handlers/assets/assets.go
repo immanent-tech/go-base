@@ -107,6 +107,10 @@ func hashFilename(logical, hash string) string {
 // If the asset isn't found, it logs and returns the logical name unchanged
 // so a missed rename fails loudly (404) rather than silently breaking the page.
 func GetAssetPath(ctx context.Context, logical string) string {
+	if manifest == nil {
+		slogctx.Warn(ctx, "No manifest list. Has New() been called to set up assets path?")
+		return logical
+	}
 	logical = strings.TrimPrefix(logical, "/")
 	hashed, ok := manifest.pathFor[logical]
 	if !ok {

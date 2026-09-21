@@ -31,8 +31,12 @@ var cfg *Config
 var client *resty.Client
 
 var initConfig = sync.OnceValue(func() error {
+	baseCfg, err := config.LoadAppConfig()
+	if err != nil {
+		return fmt.Errorf("load base config: %w", err)
+	}
 	cfg = &Config{
-		UserAgent:             config.GetAppName() + "/" + config.GetVersion(),
+		UserAgent:             baseCfg.AppName + "/" + baseCfg.Version,
 		DefaultRequestRetries: 3,
 	}
 	if err := config.Load(configEnvPrefix, cfg); err != nil {

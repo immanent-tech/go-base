@@ -9,6 +9,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"regexp"
 	"runtime/debug"
 	"slices"
@@ -47,7 +48,7 @@ var (
 	kvPairRegex = regexp.MustCompile(`([\w.-]+=[^;]+;)+[\w.-]+=[^;]+`)
 )
 
-type baseConfig struct {
+type AppConfig struct {
 	// AppName is the application name.
 	AppName string `koanf:"name" validate:"required"`
 	// AppID is the application name formatted for use as an ID.
@@ -61,12 +62,11 @@ type baseConfig struct {
 	BaseURL string `koanf:"baseurl" validate:"required,url"`
 }
 
-var cfg = &baseConfig{
-	Environment: EnvDevelopment,
-	Version:     "_UNKNOWN_",
-}
-
-var loadConfig = sync.OnceValue(func() error {
+var LoadAppConfig = sync.OnceValues(func() (*AppConfig, error) {
+	cfg := &AppConfig{
+		Environment: EnvDevelopment,
+		Version:     "_UNKNOWN_",
+	}
 	var vcsRevision string
 	// var vcsTime string
 	var vcsModified bool
@@ -91,49 +91,39 @@ var loadConfig = sync.OnceValue(func() error {
 	}
 
 	if err := Load(ConfigEnvPrefix, cfg); err != nil {
-		return fmt.Errorf("load base config: %w", err)
+		return nil, fmt.Errorf("load base config: %w", err)
 	}
 
 	if err := validation.Validate.Struct(cfg); err != nil {
-		return fmt.Errorf("validate base config: %w", err)
+		return nil, fmt.Errorf("validate base config: %w", err)
 	}
 
-	return nil
+	return cfg, nil
 })
 
-func GetAppName() string {
-	if err := loadConfig(); err != nil {
-		panic(err)
-	}
-	return cfg.AppName
+func (c AppConfig) GetAppName() string {
+	return c.AppName
 }
 
-func GetVersion() string {
-	if err := loadConfig(); err != nil {
-		panic(err)
-	}
-	return cfg.Version
+func (c AppConfig) GetAppID() string {
+	return c.AppID
 }
 
-func GetBaseURL() string {
-	if err := loadConfig(); err != nil {
-		panic(err)
-	}
-	return cfg.BaseURL
+func (c AppConfig) GetAppVersion() string {
+	return c.Version
 }
 
-func GetEnvironment() Environment {
-	if err := loadConfig(); err != nil {
-		panic(err)
-	}
-	return cfg.Environment
+func (c AppConfig) GetAppEnvironment() Environment {
+	return c.Environment
 }
 
-func IsProduction() bool {
-	if err := loadConfig(); err != nil {
-		panic(err)
-	}
-	return cfg.Environment == EnvProduction
+func (c AppConfig) IsProduction() bool {
+	return c.Environment == EnvProduction
+}
+
+func (c AppConfig) GetBaseURL() *url.URL {
+	baseURL, _ := url.Parse(c.BaseURL) // This should never produce an error as the URL has already been validated.
+	return baseURL
 }
 
 // Load will load a config via environment variables with the given prefix into an object of the given type.

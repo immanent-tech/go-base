@@ -17,7 +17,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/immanent-tech/go-base/client"
+	"github.com/go-resty/resty/v2"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 )
@@ -120,7 +120,7 @@ func (e *Response) Unwrap() error { return fmt.Errorf("%d: %s", e.Status, e.Mess
 func (e *Response) HTTPStatus() int { return e.Status }
 
 // GetHTML will fetch the HTML source from the page at the given URL.
-func GetHTML(ctx context.Context, strURL string) (*bytes.Buffer, error) {
+func GetHTML(ctx context.Context, httpClient *resty.Client, strURL string) (*bytes.Buffer, error) {
 	sourceURL, err := url.Parse(strURL)
 	if err != nil {
 		return nil, &Response{
@@ -138,15 +138,7 @@ func GetHTML(ctx context.Context, strURL string) (*bytes.Buffer, error) {
 	// Create a buffer for the feed data.
 	var pageBuf bytes.Buffer
 
-	client, err := client.Load()
-	if err != nil {
-		return nil, &Response{
-			Status:  http.StatusInternalServerError,
-			Message: fmt.Sprintf("load client: %s", err.Error()),
-		}
-	}
-
-	resp, err := client.R().
+	resp, err := httpClient.R().
 		SetContext(ctx).
 		SetDoNotParseResponse(true).
 		Get(sourceURL.String())

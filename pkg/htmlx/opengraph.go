@@ -13,6 +13,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/indaco/teseo/opengraph"
 	"golang.org/x/net/html"
 )
@@ -26,8 +27,8 @@ type OpenGraph struct {
 }
 
 // GetOpengraphData returns the parsed Opengraph data from the page at the given URL.
-func GetOpengraphData(ctx context.Context, sourceURL string) (*OpenGraph, error) {
-	pageSource, err := GetHTML(ctx, sourceURL)
+func GetOpengraphData(ctx context.Context, httpClient *resty.Client, sourceURL string) (*OpenGraph, error) {
+	pageSource, err := GetHTML(ctx, httpClient, sourceURL)
 	if err != nil {
 		return nil, fmt.Errorf("get HTML: %w", err)
 	}

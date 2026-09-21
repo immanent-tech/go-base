@@ -14,7 +14,7 @@ import (
 	"strings"
 
 	"codeberg.org/readeck/go-readability/v2"
-	"github.com/immanent-tech/go-base/client"
+	"github.com/go-resty/resty/v2"
 	slogctx "github.com/veqryn/slog-context"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
@@ -87,8 +87,8 @@ func ExtractImage(input, pageURL string) (string, string, error) {
 
 // FindMainImage will attempt to extract a URL to what is likely the "main" image of a page (i.e., typically used on
 // article/post pages).
-func FindMainImage(ctx context.Context, rawURL string) (string, error) {
-	pageBuf, err := GetHTML(ctx, rawURL)
+func FindMainImage(ctx context.Context, httpClient *resty.Client, rawURL string) (string, error) {
+	pageBuf, err := GetHTML(ctx, httpClient, rawURL)
 	if err != nil {
 		return "", fmt.Errorf("get %s: %w", rawURL, err)
 	}
@@ -154,13 +154,13 @@ func findMainImage(page []byte, rawURL string) (string, error) {
 }
 
 // FindFavicon will attempt to extract a URL to what is likely the favicon of a page.
-func FindFavicon(ctx context.Context, rawURL string) (string, error) {
-	pageBuf, err := GetHTML(ctx, rawURL)
+func FindFavicon(ctx context.Context, httpClient *resty.Client, rawURL string) (string, error) {
+	pageBuf, err := GetHTML(ctx, httpClient, rawURL)
 	if err != nil {
 		return "", fmt.Errorf("get %s: %w", rawURL, err)
 	}
 
-	_, faviconURL, _, err := findBestFavicon(pageBuf.Bytes(), rawURL)
+	_, faviconURL, _, err := findBestFavicon(httpClient, pageBuf.Bytes(), rawURL)
 	if err != nil {
 		return "", fmt.Errorf("find favicon: %w", err)
 	}
@@ -255,6 +255,7 @@ func resolve(pageURL, href string) (string, error) {
 // findBestFaviconCandidate tries each candidate in order and returns the first one that responds with a 2xx status and
 // a non-empty body.
 func findBestFavicon(
+	httpClient *resty.Client,
 	page []byte,
 	pageURL string,
 ) ([]byte, string, Favicon, error) {
@@ -270,11 +271,7 @@ func findBestFavicon(
 		if err != nil {
 			continue
 		}
-		client, err := client.Load()
-		if err != nil {
-			return nil, "", Favicon{}, fmt.Errorf("load client: %w", err)
-		}
-		resp, err := client.R().Get(abs)
+		resp, err := httpClient.R().Get(abs)
 		if err != nil {
 			continue
 		}

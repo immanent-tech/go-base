@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-// Package breadcrumbs maintains a per-session trail of the pages a user has
-// navigated through on a site, backed by github.com/alexedwards/scs.
+// Package breadcrumbs maintains a per-session trail of the pages a user has navigated through on a site, backed by
+// github.com/alexedwards/scs.
 //
 // A chi middleware inspects the Referer header on every request:
 //
@@ -16,8 +16,7 @@
 //     another page on this site), it is appended to the trail as the most
 //     recent breadcrumb.
 //
-// The trail can then be queried for the previous page, or for any page in
-// the trail by index.package breadcrumbs
+// The trail can then be queried for the previous page, or for any page in the trail by index.package breadcrumbs
 package breadcrumbs
 
 import (

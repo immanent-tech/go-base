@@ -7,11 +7,11 @@ require (
 	github.com/a-h/templ v0.3.1020
 	github.com/fatih/color v1.19.0
 	github.com/go-chi/chi/v5 v5.3.2
-	github.com/go-playground/form/v4 v4.3.1
-	github.com/go-playground/validator/v10 v10.30.4
+	github.com/go-playground/form/v4 v4.5.0
+	github.com/go-playground/validator/v10 v10.30.5
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/indaco/teseo v0.2.5
-	github.com/jub0bs/cors v1.1.1
+	github.com/jub0bs/cors v1.1.2
 	github.com/knadh/koanf/providers/env/v2 v2.0.1
 	github.com/knadh/koanf/v2 v2.3.6
 	github.com/lmittmann/tint v1.2.0
@@ -25,8 +25,8 @@ require (
 	github.com/zeebo/xxh3 v1.1.0
 	go.abhg.dev/goldmark/frontmatter v0.3.0
 	go.opentelemetry.io/otel/trace v1.46.0
-	golang.org/x/net v0.58.0
-	golang.org/x/text v0.41.0
+	golang.org/x/net v0.59.0
+	golang.org/x/text v0.42.0
 )
 
 require (
@@ -68,11 +68,11 @@ require (
 	github.com/woodsbury/decimal128 v1.4.0 // indirect
 	go.opentelemetry.io/otel v1.46.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
-	golang.org/x/crypto v0.55.0 // indirect
-	golang.org/x/mod v0.38.0 // indirect
-	golang.org/x/sync v0.22.0 // indirect
-	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/tools v0.48.0 // indirect
+	golang.org/x/crypto v0.57.0 // indirect
+	golang.org/x/mod v0.41.0 // indirect
+	golang.org/x/sync v0.23.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/tools v0.49.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 

@@ -54,7 +54,7 @@ func TestLocalReferrerIsRecorded(t *testing.T) {
 
 	run(t, mgr, "http://example.com/page-a", func(r *http.Request) {
 		got, ok := mgr.Previous(r.Context())
-		if !ok || got != "http://example.com/page-a" {
+		if !ok || got.String() != "http://example.com/page-a" {
 			t.Fatalf("expected page-a recorded, got %q ok=%v", got, ok)
 		}
 	})
@@ -65,7 +65,7 @@ func TestRelativeReferrerIsRecorded(t *testing.T) {
 
 	run(t, mgr, "/page-a", func(r *http.Request) {
 		got, ok := mgr.Previous(r.Context())
-		if !ok || got != "/page-a" {
+		if !ok || got.String() != "/page-a" {
 			t.Fatalf("expected /page-a recorded, got %q ok=%v", got, ok)
 		}
 	})

@@ -31,7 +31,7 @@ import (
 const sessionKey = "breadcrumbs:trail"
 
 func init() {
-	gob.Register([]string{})
+	gob.Register([]url.URL{})
 }
 
 type SessionManager interface {
@@ -99,27 +99,27 @@ func (m *Manager) record(r *http.Request) {
 		return
 	}
 
-	m.push(ctx, raw)
+	m.push(ctx, ref)
 }
 
 // Reset clears the breadcrumb trail. It's called automatically whenever a non-local (or missing) Referer is seen, but
 // can also be called manually, e.g. from a "start over" or logout handler.
 func (m *Manager) Reset(ctx context.Context) {
-	m.Session.Put(ctx, sessionKey, []string{})
+	m.Session.Put(ctx, sessionKey, []url.URL{})
 }
 
 // push appends a page to the trail.
-func (m *Manager) push(ctx context.Context, page string) {
-	trail := append(m.All(ctx), page)
+func (m *Manager) push(ctx context.Context, page *url.URL) {
+	trail := append(m.All(ctx), *page)
 	m.Session.Put(ctx, sessionKey, trail)
 }
 
 // All returns the full breadcrumb trail, oldest first. It never returns nil - an empty trail is an empty (non-nil)
 // slice.
-func (m *Manager) All(ctx context.Context) []string {
-	trail, ok := m.Session.Get(ctx, sessionKey).([]string)
+func (m *Manager) All(ctx context.Context) []url.URL {
+	trail, ok := m.Session.Get(ctx, sessionKey).([]url.URL)
 	if !ok || trail == nil {
-		return []string{}
+		return []url.URL{}
 	}
 	return trail
 }
@@ -131,21 +131,21 @@ func (m *Manager) Len(ctx context.Context) int {
 
 // Previous returns the most recently recorded breadcrumb - i.e. the page the user navigated from to reach the current
 // request - and reports whether one was available. This is equivalent to At(ctx, Len(ctx)-1).
-func (m *Manager) Previous(ctx context.Context) (string, bool) {
+func (m *Manager) Previous(ctx context.Context) (*url.URL, bool) {
 	trail := m.All(ctx)
 	if len(trail) == 0 {
-		return "", false
+		return nil, false
 	}
-	return trail[len(trail)-1], true
+	return &trail[len(trail)-1], true
 }
 
 // At returns the breadcrumb at the given index within the current trail. Index 0 is the oldest breadcrumb since the
 // trail was last reset (i.e. the first local page the user came from after arriving on the site), and Len(ctx)-1 is the
 // most recent (equivalent to Previous). It reports false if index is out of range.
-func (m *Manager) At(ctx context.Context, index int) (string, bool) {
+func (m *Manager) At(ctx context.Context, index int) (*url.URL, bool) {
 	trail := m.All(ctx)
 	if index < 0 || index >= len(trail) {
-		return "", false
+		return nil, false
 	}
-	return trail[index], true
+	return &trail[index], true
 }

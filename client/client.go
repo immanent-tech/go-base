@@ -6,6 +6,7 @@ package client
 import (
 	"fmt"
 	"log/slog"
+	"net/http"
 	"sync"
 
 	"github.com/go-resty/resty/v2"
@@ -62,7 +63,10 @@ var Load = sync.OnceValues(func() (*resty.Client, error) {
 		SetHeader("Accept", "*/*").
 		SetHeader("Accept-Encoding", "gzip, deflate").
 		SetRedirectPolicy(resty.FlexibleRedirectPolicy(3)).
-		SetLogger(&logger{Logger: slog.Default()})
+		SetLogger(&logger{Logger: slog.Default()}).
+		SetTransport(&http.Transport{
+			MaxIdleConns: 100,
+		})
 	return client, nil
 })
 

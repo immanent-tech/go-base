@@ -25,37 +25,6 @@ type CORS struct {
 	ResponseHeaders []string `koanf:"responseheaders"`
 }
 
-// HTMXRequestHeaders contains all valid HTMX request headers.
-//
-// https://htmx.org/reference/#request_headers
-var HTMXRequestHeaders = []string{
-	htmx.HeaderBoosted,
-	htmx.HeaderCurrentURL,
-	htmx.HeaderHistoryRestoreRequest,
-	htmx.HeaderPrompt,
-	htmx.HeaderRequest,
-	htmx.HeaderTarget,
-	htmx.HeaderTriggerName,
-	htmx.HeaderTrigger,
-}
-
-// HTMXResponseHeaders contains all valid HTMX response headers.
-//
-// https://htmx.org/reference/#response_headers
-var HTMXResponseHeaders = []string{
-	htmx.HeaderLocation,
-	htmx.HeaderPushURL,
-	htmx.HeaderRedirect,
-	htmx.HeaderRefresh,
-	htmx.HeaderReplaceUrl,
-	htmx.HeaderReswap,
-	htmx.HeaderRetarget,
-	htmx.HeaderReselect,
-	htmx.HeaderTriggerAfterSettle,
-	htmx.HeaderTriggerAfterSwap,
-	htmx.HeaderTrigger,
-}
-
 var corsCfg = CORS{
 	MaxAge: 300,
 }
@@ -75,11 +44,11 @@ var loadCORS = sync.OnceValues(func() (*cors.Middleware, error) {
 		MaxAgeInSeconds: corsCfg.MaxAge,
 		RequestHeaders: append(
 			[]string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-			HTMXRequestHeaders...,
+			htmx.RequestHeaders...,
 		),
 		ResponseHeaders: append(
 			[]string{"Link", "Accept-CH"},
-			HTMXResponseHeaders...,
+			htmx.ResponseHeaders...,
 		),
 		Origins: corsCfg.AllowedOrigins,
 	}

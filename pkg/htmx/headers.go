@@ -10,23 +10,28 @@ const (
 	HeaderCurrentURL = "HX-Current-URL"
 	// Request header that is “true” if the request is for history restoration after a miss in the local history cache.
 	HeaderHistoryRestoreRequest = "HX-History-Restore-Request"
-	// Request header for the user response to an hx-prompt.
-	HeaderPrompt = "HX-Prompt"
 	// Request header that is always “true” for HTMX requests.
 	HeaderRequest = "Hx-Request"
 	// Request header of the id of the target element if it exists.
 	HeaderTarget = "HX-Target"
-	// Request header of the name of the triggered element if it exists.
-	HeaderTriggerName = "Hx-Trigger-Name"
+	// HeaderRequestType indicates which type of HTMX request this is, "full" or "partial".
+	HeaderRequestType = "HX-Request-Type"
+	// HeaderSource request header contains the element that triggered the request. Format is tag#id like button#submit.
+	HeaderSource = "HX-Source"
 )
 
-// Common HTTP headers
-const (
-	// As a request header: The ID of the triggered element if it exists.
-	//
-	// As a response header: Allows you to trigger client-side events.
-	HeaderTrigger = "HX-Trigger"
-)
+// RequestHeaders contains all valid HTMX request headers.
+//
+// https://htmx.org/reference/#request_headers
+var RequestHeaders = []string{
+	HeaderBoosted,
+	HeaderCurrentURL,
+	HeaderHistoryRestoreRequest,
+	HeaderRequest,
+	HeaderTarget,
+	HeaderRequestType,
+	HeaderSource,
+}
 
 // HTTP response headers
 const (
@@ -53,7 +58,26 @@ const (
 	HeaderTriggerAfterSettle = "HX-Trigger-After-Settle"
 	// Response header that allows you to trigger client-side events after the swap step.
 	HeaderTriggerAfterSwap = "HX-Trigger-After-Swap"
+	// HeaderTrigger response header triggers client-side events after the swap has completed.
+	HeaderTrigger = "HX-Trigger"
 )
+
+// ResponseHeaders contains all valid HTMX response headers.
+//
+// https://htmx.org/reference/#response_headers
+var ResponseHeaders = []string{
+	HeaderLocation,
+	HeaderPushURL,
+	HeaderRedirect,
+	HeaderRefresh,
+	HeaderReplaceUrl,
+	HeaderReswap,
+	HeaderRetarget,
+	HeaderReselect,
+	HeaderTriggerAfterSettle,
+	HeaderTriggerAfterSwap,
+	HeaderTrigger,
+}
 
 // 286 Stop Polling
 //

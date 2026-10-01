@@ -3,7 +3,7 @@ module github.com/immanent-tech/go-base
 go 1.27.1
 
 require (
-	codeberg.org/readeck/go-readability/v2 v2.1.2
+	codeberg.org/readeck/go-readability/v2 v2.1.3
 	github.com/a-h/templ v0.3.1020
 	github.com/fatih/color v1.19.0
 	github.com/go-chi/chi/v5 v5.3.2
@@ -11,9 +11,9 @@ require (
 	github.com/go-playground/validator/v10 v10.30.5
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/indaco/teseo v0.2.5
-	github.com/jub0bs/cors v1.1.2
+	github.com/jub0bs/cors v1.1.3
 	github.com/knadh/koanf/providers/env/v2 v2.0.1
-	github.com/knadh/koanf/v2 v2.3.6
+	github.com/knadh/koanf/v2 v2.3.7
 	github.com/lmittmann/tint v1.2.0
 	github.com/mattn/go-isatty v0.0.24
 	github.com/microcosm-cc/bluemonday v1.0.27

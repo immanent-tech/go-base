@@ -1,8 +1,10 @@
 # Copyright 2026 Joshua Rich <joshua.rich@gmail.com>.
 # SPDX-License-Identifier: 	AGPL-3.0-or-later
 
-ARG ALPINE_VERSION=3.24.1@sha256:79ff19e9084a00eece421b2523fb93e22d730e2c0e525905de047e848e56d95f
-ARG GO_VERSION=1.27.1-alpine3.24@sha256:f86f1a6701e3dcc445fec097a42f78b758f15950ccf032c2d3e54e2754d32fdb
+# https://hub.docker.com/_/alpine/
+ARG ALPINE_VERSION=3.24.2@sha256:d56c381f961d307a21b3ca004cf1e3910f106644aefb1f43e654c8a56c4fd395
+# https://hub.docker.com/_/golang
+ARG GO_VERSION=1.27.1-alpine3.24@sha256:cd9a32216aee5667f957a62d13a10032a63fd58e14b3f3d9cc8c2122f501e95e
 
 FROM docker.io/golang:${GO_VERSION} AS golang
 FROM docker.io/alpine:${ALPINE_VERSION} AS builder

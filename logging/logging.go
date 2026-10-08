@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strconv"
 	"sync"
 	"time"
 
@@ -26,14 +27,19 @@ const (
 
 	// LevelTrace is a custom TRACE log level.
 	LevelTrace = slog.Level(-8)
+	// LevelNotice is a custom NOTICE log level.
+	LevelNotice = slog.Level(2) // between INFO (0) and WARN (4)
 	// LevelFatal is a custom FATAL log level.
 	LevelFatal = slog.Level(12)
+	// LevelCritical is an alias of [LevelFatal].
+	LevelCritical = LevelFatal
 )
 
 // LevelNames contains a list of custom log level names.
 var LevelNames = map[slog.Leveler]string{
-	LevelTrace: "TRACE",
-	LevelFatal: "FATAL",
+	LevelTrace:  "TRACE",
+	LevelNotice: "NOTICE",
+	LevelFatal:  "FATAL",
 }
 
 type Config struct {
@@ -212,37 +218,42 @@ func fileLevelReplacer(_ []string, attr slog.Attr) slog.Attr {
 // https://cloud.google.com/logging/docs/structured-logging
 // https://cloud.google.com/logging/docs/agent/logging/configuration#special-fields
 func containerReplacer(groups []string, attr slog.Attr) slog.Attr {
-	switch {
-	// TimeKey and format correspond to GCP convention by default
-	// https://cloud.google.com/logging/docs/agent/logging/configuration#timestamp-processing
-	case attr.Key == slog.TimeKey && len(groups) == 0:
-		return attr
-	case attr.Key == slog.LevelKey && len(groups) == 0:
-		logLevel, ok := attr.Value.Any().(slog.Level)
-		if !ok {
-			return attr
-		}
-		switch logLevel {
-		case slog.LevelDebug:
-			return slog.String("severity", "DEBUG")
-		case slog.LevelInfo:
-			return slog.String("severity", "INFO")
-		case slog.LevelWarn:
-			return slog.String("severity", "WARNING")
-		case slog.LevelError:
-			return slog.String("severity", "ERROR")
-		default:
-			// Format custom log level.
-			if levelLabel, exists := LevelNames[logLevel]; exists {
-				return slog.String("severity", levelLabel)
-			}
-			return slog.String("severity", "DEFAULT")
-		}
-	case attr.Key == slog.MessageKey && len(groups) == 0:
-		return slog.String("message", attr.Value.String())
-	default:
+	// Only rename top-level keys.
+	if len(groups) > 0 {
 		return attr
 	}
+	switch attr.Key {
+	case slog.LevelKey:
+		attr.Key = "severity"
+		if lvl, ok := attr.Value.Any().(slog.Level); ok {
+			switch {
+			case lvl >= LevelCritical:
+				attr.Value = slog.StringValue("CRITICAL")
+			case lvl >= slog.LevelError:
+				attr.Value = slog.StringValue("ERROR")
+			case lvl >= slog.LevelWarn:
+				attr.Value = slog.StringValue("WARNING")
+			case lvl >= LevelNotice:
+				attr.Value = slog.StringValue("NOTICE")
+			case lvl >= slog.LevelInfo:
+				attr.Value = slog.StringValue("INFO")
+			default:
+				attr.Value = slog.StringValue("DEBUG")
+			}
+		}
+	case slog.MessageKey:
+		attr.Key = "message"
+	case slog.SourceKey:
+		attr.Key = "logging.googleapis.com/sourceLocation"
+		if src, ok := attr.Value.Any().(*slog.Source); ok {
+			attr.Value = slog.GroupValue(
+				slog.String("file", src.File),
+				slog.String("line", strconv.Itoa(src.Line)),
+				slog.String("function", src.Function),
+			)
+		}
+	}
+	return attr
 }
 
 // openLogFile will attempt to open the specified log file. It will also attempt

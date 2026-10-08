@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/immanent-tech/go-base/validation"
 	slogchi "github.com/samber/slog-chi"
 	slogctx "github.com/veqryn/slog-context"
 )
@@ -66,12 +67,12 @@ func CSRFError() http.HandlerFunc {
 		slogctx.FromCtx(req.Context()).Error("CSRF check failed",
 			slog.String("method", req.Method),
 			slog.String("host", req.Host),
-			slog.String("path", req.URL.Path),
-			slog.String("query", req.URL.RawQuery),
+			slog.String("path", validation.SanitizeString(req.URL.Path)),
+			slog.String("query", validation.SanitizeString(req.URL.RawQuery)),
 			slog.Any("params", params),
 			slog.String("route", chi.RouteContext(req.Context()).RoutePattern()),
 			slog.String("ip", req.RemoteAddr),
-			slog.String("referer", req.Referer()),
+			slog.String("referer", validation.SanitizeString(req.Referer())),
 			slog.String(slogchi.RequestIDKey, middleware.GetReqID(req.Context())),
 		)
 		http.Error(res, "CSRF Failed", http.StatusBadRequest)

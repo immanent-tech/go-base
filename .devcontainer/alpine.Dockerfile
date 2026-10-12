@@ -4,7 +4,7 @@
 # https://hub.docker.com/_/alpine/
 ARG ALPINE_VERSION=3.24.2@sha256:d56c381f961d307a21b3ca004cf1e3910f106644aefb1f43e654c8a56c4fd395
 # https://hub.docker.com/_/golang
-ARG GO_VERSION=1.27.1-alpine3.24@sha256:cd9a32216aee5667f957a62d13a10032a63fd58e14b3f3d9cc8c2122f501e95e
+ARG GO_VERSION=1.27.2-alpine3.24@sha256:3b15ba438c60ab8fabe5fee3b11025c0049e358b31feff384648f11fc8e335f8
 
 FROM docker.io/golang:${GO_VERSION} AS golang
 FROM docker.io/alpine:${ALPINE_VERSION} AS builder
@@ -13,7 +13,7 @@ FROM docker.io/alpine:${ALPINE_VERSION} AS builder
 COPY --from=golang /usr/local/go/ /usr/local/go/
 
 # Install additional packages
-RUN apk update && apk add sudo openssh curl git bash fish micro dotenv
+RUN --mount=type=cache,target=/var/cache/apk apk update && apk add sudo openssh curl git bash fish micro dotenv
 
 # # Add non-root user
 ARG USER_NAME=vscode

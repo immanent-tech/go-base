@@ -2,6 +2,8 @@ module github.com/immanent-tech/go-base
 
 go 1.27.1
 
+replace github.com/dprotaso/go-yit => github.com/dprotaso/go-yit v0.0.0-20220510233725-9ba8df137936
+
 require (
 	codeberg.org/readeck/go-readability/v2 v2.1.3
 	github.com/a-h/templ v0.3.1070
@@ -14,10 +16,11 @@ require (
 	github.com/indaco/teseo v0.2.5
 	github.com/jub0bs/cors v1.1.3
 	github.com/knadh/koanf/providers/env/v2 v2.0.2
-	github.com/knadh/koanf/v2 v2.3.7
+	github.com/knadh/koanf/v2 v2.3.8
 	github.com/lmittmann/tint v1.2.1
 	github.com/mattn/go-isatty v0.0.24
 	github.com/microcosm-cc/bluemonday v1.0.27
+	github.com/realclientip/realclientip-go v1.0.0
 	github.com/samber/slog-chi v1.19.1
 	github.com/samber/slog-multi v1.8.0
 	github.com/veqryn/slog-context v0.9.0
@@ -26,8 +29,8 @@ require (
 	github.com/zeebo/xxh3 v1.1.0
 	go.abhg.dev/goldmark/frontmatter v0.3.0
 	go.opentelemetry.io/otel/trace v1.47.0
-	golang.org/x/net v0.59.0
-	golang.org/x/text v0.42.0
+	golang.org/x/net v0.61.0
+	golang.org/x/text v0.43.0
 )
 
 require (
@@ -58,7 +61,6 @@ require (
 	github.com/oapi-codegen/oapi-codegen/v2 v2.8.0 // indirect
 	github.com/oasdiff/yaml v0.1.1 // indirect
 	github.com/oasdiff/yaml3 v0.0.14 // indirect
-	github.com/realclientip/realclientip-go v1.0.0
 	github.com/samber/lo v1.53.0 // indirect
 	github.com/samber/slog-common v0.21.0 // indirect
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2 // indirect
@@ -67,10 +69,10 @@ require (
 	github.com/vmware-labs/yaml-jsonpath v0.3.2 // indirect
 	go.opentelemetry.io/otel v1.47.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
-	golang.org/x/crypto v0.57.0 // indirect
+	golang.org/x/crypto v0.58.0 // indirect
 	golang.org/x/mod v0.41.0 // indirect
-	golang.org/x/sync v0.23.0 // indirect
-	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/sync v0.24.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/tools v0.51.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

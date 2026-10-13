@@ -106,5 +106,5 @@ func DecodeMultipartValue(req *http.Request, field string) (string, error) {
 		return "", errors.Join(ErrDecode, err)
 	}
 	// Decode the form values.
-	return validation.SanitizeString(req.FormValue(field)), nil
+	return validation.SanitizeInput(req.FormValue(field)), nil
 }

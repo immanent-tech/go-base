@@ -184,3 +184,9 @@ func WithHXReplaceURL(value any) AttributesOption {
 		}
 	}
 }
+
+func WithNonce(nonce string) AttributesOption {
+	return func(a *Attributes) {
+		a.setAttribute("hx-nonce", nonce)
+	}
+}

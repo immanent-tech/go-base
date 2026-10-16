@@ -9,6 +9,7 @@ func SetupHTMX(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		res.Header().Add("Vary", HeaderRequest)
 		res.Header().Add("Vary", HeaderHistoryRestoreRequest)
+		res.Header().Add("Vary", HeaderRequestType)
 		next.ServeHTTP(res, req)
 	})
 }

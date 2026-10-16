@@ -70,6 +70,10 @@ type CSP struct {
 	ManifestSrc []string `koanf:"manifestsrc"`
 	// PrefetchSrc defines valid sources for request prefetch and prerendering, for example via the link tag with rel="prefetch" or rel="prerender":
 	PrefetchSrc []string `koanf:"prefetchsrc"`
+	// RequireTrustedTypesFor instructs user agents to control the data passed to DOM XSS sink functions, like
+	// Element.innerHTML setter.
+	RequireTrustedTypesFor []string `koanf:"requiretrustedtypesfor"`
+	TrustedTypes           []string `koanf:"trustedtypes"`
 }
 
 // directive writes a single directive, e.g. "script-src 'self' foo.com bar.com; ".
@@ -137,6 +141,13 @@ func (csp CSP) String(scriptNonce, styleNonce string) string {
 		directive(&policy, "img-src", "", csp.ImgSrc)
 	} else {
 		policy.WriteString("img-src 'self' data:; ")
+	}
+
+	if len(csp.RequireTrustedTypesFor) > 0 {
+		directive(&policy, "require-trusted-types-for", "", csp.RequireTrustedTypesFor)
+	}
+	if len(csp.TrustedTypes) > 0 {
+		directive(&policy, "trusted-types", "", csp.TrustedTypes)
 	}
 
 	// script-src / style-src: nonces are appended per-request. 'unsafe-inline'
@@ -211,7 +222,7 @@ func ContentSecurityPolicy(next http.Handler) http.Handler {
 
 		// Same nonce used for both script and style in this case; split
 		// into two generateNonce() calls if you want them independent.
-		res.Header().Set("Content-Security-Policy", csp.String("", ""))
+		res.Header().Set("Content-Security-Policy", csp.String(nonce, ""))
 
 		ctx := templ.WithNonce(req.Context(), nonce)
 		ctx = context.WithValue(ctx, nonceContextKey{}, nonce)

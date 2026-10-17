@@ -10,6 +10,7 @@ func SetupHTMX(next http.Handler) http.Handler {
 		res.Header().Add("Vary", HeaderRequest)
 		res.Header().Add("Vary", HeaderHistoryRestoreRequest)
 		res.Header().Add("Vary", HeaderRequestType)
+		res.Header().Add("Vary", HeaderTarget)
 		next.ServeHTTP(res, req)
 	})
 }
@@ -18,8 +19,9 @@ func SetupHTMX(next http.Handler) http.Handler {
 // return 403: Forbidden response.
 func RequireHTMX(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		res.Header().Add("Vary", HeaderRequest)
 		if !IsHTMX(req) {
-			http.Error(res, "Not allowed", http.StatusForbidden)
+			http.NotFound(res, req)
 			return
 		}
 		next.ServeHTTP(res, req)

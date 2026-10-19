@@ -99,6 +99,9 @@ func Handler(next http.Handler, weak bool) http.Handler {
 			hw.status < 200 || hw.status >= 300 ||
 			hw.status == http.StatusNoContent ||
 			hw.buf.Len() == 0 {
+			if hw.status == 0 {
+				hw.status = http.StatusOK
+			}
 			res.WriteHeader(hw.status)
 			res.Write(hw.buf.Bytes()) //nolint:errcheck
 			return
@@ -110,7 +113,7 @@ func Handler(next http.Handler, weak bool) http.Handler {
 		sum := xxh3.Hash128(body)
 
 		// ETags must be enclosed in double-quotes per RFC 9110 §8.8.3.
-		etag := fmt.Sprintf("\"%d-%016x%016x\"", hw.len, sum.Hi, sum.Lo)
+		etag := fmt.Sprintf(`"%d-%016x%016x"`, hw.len, sum.Hi, sum.Lo)
 		if weak {
 			etag = "W/" + etag
 		}
@@ -122,9 +125,13 @@ func Handler(next http.Handler, weak bool) http.Handler {
 			return
 		}
 
+		if hw.status == 0 {
+			hw.status = http.StatusOK
+		}
+
 		res.WriteHeader(hw.status)
 		res.Write(hw.buf.Bytes())
-	})
+		})
 }
 
 // isFresh reports whether the request's cache validators indicate the client

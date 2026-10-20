@@ -178,9 +178,9 @@ func WithHXReplaceURL(value any) AttributesOption {
 	return func(a *Attributes) {
 		switch v := value.(type) {
 		case string:
-			a.setAttribute("hx-push-url", v)
+			a.setAttribute("hx-replace-url", v)
 		case bool:
-			a.setAttribute("hx-push-url", v)
+			a.setAttribute("hx-replace-url", v)
 		}
 	}
 }

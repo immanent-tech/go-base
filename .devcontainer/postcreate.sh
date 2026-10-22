@@ -13,6 +13,7 @@ dirs=(
   "$HOME/.cache/golangci-lint"
   "$HOME/.npm-global"
   "/workspace/tmp"
+  "$HOME/.config/gcloud"
 )
 
 for d in "${dirs[@]}"; do

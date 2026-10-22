@@ -23,7 +23,7 @@ ARG USER_GID=$USER_UID
 RUN --mount=type=cache,target=/var/cache/apk \
     ln -vs /var/cache/apk /etc/apk/cache \
     && apk add sudo libstdc++ build-base openssh-client ca-certificates tzdata make jq ripgrep less procps curl git \
-    bash fish micro dotenv unzip graphviz npm nodejs bash-completion ${EXTRA_PKGS}
+    bash fish micro dotenv unzip graphviz npm nodejs bash-completion python3 py3-crcmod ${EXTRA_PKGS}
 
 # Install Zyte CA.
 ADD --chmod=644 https://docs.zyte.com/_static/zyte-ca.crt /usr/local/share/ca-certificates/zyte-ca.crt
@@ -35,6 +35,21 @@ ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/zyte-ca.crt
 RUN curl -fsSL -o /usr/local/bin/oh-my-posh \
     "https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/${OMP_VERSION}/posh-linux-${TARGETARCH}" \
     && chmod +x /usr/local/bin/oh-my-posh
+
+# Install gcloud.
+ARG GCLOUD_VERSION=590.0.0
+ENV CLOUDSDK_PYTHON=python3
+RUN case "$TARGETARCH" in \
+    amd64) GARCH=x86_64 ;; \
+    arm64) GARCH=arm ;; \
+    *) echo "unsupported arch: $TARGETARCH" >&2; exit 1 ;; \
+    esac \
+    && curl -fsSL "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-${GCLOUD_VERSION}-linux-${GARCH}.tar.gz" \
+    | tar -xz -C /usr/local \
+    && rm -rf /usr/local/google-cloud-sdk/platform/bundledpythonunix \
+    && /usr/local/google-cloud-sdk/install.sh --quiet \
+    --usage-reporting=false --path-update=false --command-completion=false \
+    && rm -rf /usr/local/google-cloud-sdk/.install/.backup
 
 RUN addgroup --gid $USER_GID $USER_NAME \
     && adduser --uid $USER_UID --ingroup $USER_NAME --shell /usr/bin/fish $USER_NAME \
@@ -61,10 +76,12 @@ ENV XDG_CACHE_HOME=/home/$USER_NAME/.cache
 # Set up path and environment.
 ENV NPM_CONFIG_PREFIX=/home/${USER_NAME}/.npm-global \
     NPM_CONFIG_CACHE=/home/${USER_NAME}/.cache/npm \
-    PATH=/home/${USER_NAME}/.local/bin:/home/${USER_NAME}/.npm-global/bin:$PATH
+    CLOUDSDK_COMPONENT_MANAGER_DISABLE_UPDATE_CHECK=1 \
+    CLOUDSDK_CORE_CUSTOM_CA_CERTS_FILE=/etc/ssl/certs/ca-certificates.crt \
+    PATH=/usr/local/google-cloud-sdk/bin:/home/${USER_NAME}/.local/bin:/home/${USER_NAME}/.npm-global/bin:$PATH
 
 # Create user-owned dirs up front so cache mounts and volumes inherit correct ownership.
-RUN mkdir -p ~/.config/fish ~/.cache/go-build $NPM_CONFIG_CACHE $NPM_CONFIG_PREFIX/bin /go/pkg/mod
+RUN mkdir -p ~/.config/fish ~/.cache/go-build $NPM_CONFIG_CACHE $NPM_CONFIG_PREFIX/bin /go/pkg/mod ~/.config/gcloud
 
 # Set up Go.
 RUN --mount=type=cache,target=/home/vscode/.cache/go-build,uid=1000,gid=1000 \
@@ -79,6 +96,7 @@ RUN mkdir -p $NPM_CONFIG_PREFIX/bin $NPM_CONFIG_CACHE
 RUN sudo chown -R $USER_UID:$USER_GID /home/$USER_NAME \
     && mkdir -p ~/.config/fish \
     && echo 'source <(npm completion)' >> ~/.bashrc \
+    && echo 'source /usr/local/google-cloud-sdk/completion.bash.inc' >> ~/.bashrc \
     && echo 'eval "$(oh-my-posh init bash)"' >> ~/.bashrc \
     && echo 'oh-my-posh init fish | source' >> ~/.config/fish/config.fish
 

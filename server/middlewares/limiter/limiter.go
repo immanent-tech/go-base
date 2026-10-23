@@ -79,9 +79,9 @@ func RateLimit(next http.Handler) http.Handler {
 			slogctx.FromCtx(req.Context()).Warn("Request rate-limited.",
 				slog.String("error", httpErr.Message),
 				slog.Int("code", httpErr.StatusCode),
-				slog.String("path", validation.SanitizeString(req.URL.Path)),
+				slog.String("path", validation.SanitizeInput(req.URL.Path)),
 				slog.String("client_ip", clientIP),
-				slog.String("user_agent", validation.SanitizeString(req.Header.Get("User-Agent"))),
+				slog.String("user_agent", validation.SanitizeInput(req.Header.Get("User-Agent"))),
 			)
 			http.Error(res, httpErr.Message, httpErr.StatusCode)
 			return

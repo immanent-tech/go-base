@@ -67,12 +67,12 @@ func CSRFError() http.HandlerFunc {
 		slogctx.FromCtx(req.Context()).Error("CSRF check failed",
 			slog.String("method", req.Method),
 			slog.String("host", req.Host),
-			slog.String("path", validation.SanitizeString(req.URL.Path)),
-			slog.String("query", validation.SanitizeString(req.URL.RawQuery)),
+			slog.String("path", validation.SanitizeInput(req.URL.Path)),
+			slog.String("query", validation.SanitizeInput(req.URL.RawQuery)),
 			slog.Any("params", params),
 			slog.String("route", chi.RouteContext(req.Context()).RoutePattern()),
 			slog.String("ip", req.RemoteAddr),
-			slog.String("referer", validation.SanitizeString(req.Referer())),
+			slog.String("referer", validation.SanitizeInput(req.Referer())),
 			slog.String(slogchi.RequestIDKey, middleware.GetReqID(req.Context())),
 		)
 		http.Error(res, "CSRF Failed", http.StatusBadRequest)

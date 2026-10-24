@@ -84,7 +84,7 @@ var New = sync.OnceValue(func() *slog.Logger {
 	var handlers []slog.Handler
 
 	// When logging in a container, use JSON output and disable logfile, unless the "console" format has been specified.
-	if config.DetectContainerRuntime() != config.RuntimeNone && cfg.Format != "console" {
+	if config.DetectContainerRuntime() != config.RuntimeNone || cfg.Format != "console" {
 		slog.Info("Using container logging format.")
 		cfg.LogFile = ""
 		instrumentedHandler := HandlerWithSpanContext(

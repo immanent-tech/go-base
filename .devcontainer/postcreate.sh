@@ -14,6 +14,7 @@ dirs=(
   "$HOME/.npm-global"
   "/workspace/tmp"
   "$HOME/.config/gcloud"
+  "$HOME/.pulumi"
 )
 
 for d in "${dirs[@]}"; do
@@ -38,3 +39,5 @@ done
 # Shell history file for bash (fish creates its own under XDG_DATA_HOME).
 mkdir -p /datahome/bash /datahome/fish
 touch /datahome/bash/.bash_history
+
+exit 0

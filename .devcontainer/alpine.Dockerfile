@@ -51,6 +51,19 @@ RUN case "$TARGETARCH" in \
     --usage-reporting=false --path-update=false --command-completion=false \
     && rm -rf /usr/local/google-cloud-sdk/.install/.backup
 
+# Install pulumi.
+# https://github.com/pulumi/pulumi/releases
+ARG PULUMI_VERSION=3.272.0
+RUN case "$TARGETARCH" in \
+      amd64) PARCH=x64 ;; \
+      arm64) PARCH=arm64 ;; \
+      *) echo "unsupported arch: $TARGETARCH" >&2; exit 1 ;; \
+    esac \
+    && curl -fsSL "https://get.pulumi.com/releases/sdk/pulumi-v${PULUMI_VERSION}-linux-${PARCH}.tar.gz" \
+       | tar -xz -C /usr/local/bin --strip-components=1 \
+    && PULUMI_SKIP_UPDATE_CHECK=true pulumi gen-completion bash > /usr/share/bash-completion/completions/pulumi \
+    && PULUMI_SKIP_UPDATE_CHECK=true pulumi gen-completion fish > /usr/share/fish/vendor_completions.d/pulumi.fish
+
 RUN addgroup --gid $USER_GID $USER_NAME \
     && adduser --uid $USER_UID --ingroup $USER_NAME --shell /usr/bin/fish $USER_NAME \
     --disabled-password --gecos "" \
@@ -81,7 +94,7 @@ ENV NPM_CONFIG_PREFIX=/home/${USER_NAME}/.npm-global \
     PATH=/usr/local/google-cloud-sdk/bin:/home/${USER_NAME}/.local/bin:/home/${USER_NAME}/.npm-global/bin:$PATH
 
 # Create user-owned dirs up front so cache mounts and volumes inherit correct ownership.
-RUN mkdir -p ~/.config/fish ~/.cache/go-build $NPM_CONFIG_CACHE $NPM_CONFIG_PREFIX/bin /go/pkg/mod ~/.config/gcloud
+RUN mkdir -p ~/.config/fish ~/.cache/go-build $NPM_CONFIG_CACHE $NPM_CONFIG_PREFIX/bin /go/pkg/mod ~/.config/gcloud ~/.pulumi
 
 # Set up Go.
 RUN --mount=type=cache,target=/home/vscode/.cache/go-build,uid=1000,gid=1000 \
@@ -108,6 +121,8 @@ RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/datahome/bas
     && echo "$SNIPPET" >> "/home/$USER_NAME/.bashrc"
 
 ENV BASE_CONTAINER=alpine
+
+ENV PULUMI_SKIP_UPDATE_CHECK=true
 
 RUN ls -ld /home/vscode ~ && id
 

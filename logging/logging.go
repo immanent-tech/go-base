@@ -46,7 +46,7 @@ type Config struct {
 	// Level is the current default logging level.
 	Level string `koanf:"level" validate:"omitempty,oneof=trace debug info warn error"`
 	// Format overrides any auto-assigned format of the logs to the one specified.
-	Format string `koanf:"format" validate:"omitempty,oneof=json console"`
+	Format string `koanf:"format" validate:"omitempty,oneof=json console text"`
 	// LogFile is a file to which logs will be written. Any existing file will be overwritten.
 	LogFile      string     `koanf:"file" validate:"omitempty,file"`
 	currentLevel slog.Level `koanf:"-"`
@@ -83,9 +83,15 @@ var New = sync.OnceValue(func() *slog.Logger {
 
 	var handlers []slog.Handler
 
-	// When logging in a container, use JSON output and disable logfile, unless the "console" format has been specified.
-	if config.DetectContainerRuntime() != config.RuntimeNone || cfg.Format != "console" {
-		slog.Info("Using container logging format.")
+	// Detect or use specified format.
+	switch {
+	case cfg.Format == "text": // Text format explicitly requested.
+		slog.Info("Using specified format.", slog.String("format", cfg.Format))
+		handlers = append(handlers,
+			tint.NewTextHandler(os.Stderr, consoleOptions(cfg.currentLevel, os.Stderr.Fd())),
+		)
+	case config.DetectContainerRuntime() != config.RuntimeNone, cfg.Format == "console": // Console format or container.
+		slog.Info("Using container logging format.", slog.String("container", string(config.DetectContainerRuntime())))
 		cfg.LogFile = ""
 		instrumentedHandler := HandlerWithSpanContext(
 			slog.NewJSONHandler(os.Stderr, containerConsoleOptions(cfg.currentLevel)),
@@ -93,7 +99,7 @@ var New = sync.OnceValue(func() *slog.Logger {
 		handlers = append(handlers,
 			instrumentedHandler,
 		)
-	} else {
+	default: // Default to text format.
 		slog.Info("Using text logging format.")
 		handlers = append(handlers,
 			tint.NewTextHandler(os.Stderr, consoleOptions(cfg.currentLevel, os.Stderr.Fd())),

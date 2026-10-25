@@ -9,7 +9,7 @@ require (
 	github.com/a-h/templ v0.3.1070
 	github.com/didip/tollbooth/v8 v8.0.1
 	github.com/fatih/color v1.19.0
-	github.com/go-chi/chi/v5 v5.3.2
+	github.com/go-chi/chi/v5 v5.4.0
 	github.com/go-playground/form/v4 v4.5.0
 	github.com/go-playground/validator/v10 v10.30.5
 	github.com/go-resty/resty/v2 v2.17.2
@@ -31,7 +31,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.47.0
 	golang.org/x/net v0.61.0
 	golang.org/x/text v0.43.0
-	golang.org/x/time v0.12.0
+	golang.org/x/time v0.16.0
 )
 
 require (

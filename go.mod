@@ -9,14 +9,14 @@ require (
 	github.com/a-h/templ v0.3.1070
 	github.com/didip/tollbooth/v8 v8.0.1
 	github.com/fatih/color v1.19.0
-	github.com/go-chi/chi/v5 v5.4.0
+	github.com/go-chi/chi/v5 v5.5.0
 	github.com/go-playground/form/v4 v4.5.0
 	github.com/go-playground/validator/v10 v10.30.5
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/indaco/teseo v0.2.5
 	github.com/jub0bs/cors v1.1.3
 	github.com/knadh/koanf/providers/env/v2 v2.0.2
-	github.com/knadh/koanf/v2 v2.3.8
+	github.com/knadh/koanf/v2 v2.4.1
 	github.com/lmittmann/tint v1.2.1
 	github.com/mattn/go-isatty v0.0.24
 	github.com/microcosm-cc/bluemonday v1.0.27

@@ -18,12 +18,22 @@ import (
 	"github.com/microcosm-cc/bluemonday"
 )
 
-const DefaultMaxRunes = 300
+const (
+	// DefaultMaxRunes applies to text sanitization. It defines a default number of runes to truncate a string to if no value is given.
+	DefaultMaxRunes = 300
+	// DefaultEscapePasses defines a max number of passes to attempt to unescape a string before giving up.
+	DefaultEscapePasses = 5
+)
 
 var AllowedURLSchemes = []string{"http", "https", "ftp", "mailto"}
 
 var policy = sync.OnceValue(func() *bluemonday.Policy {
-	return bluemonday.UGCPolicy()
+	return bluemonday.UGCPolicy().
+		AllowURLSchemes(AllowedURLSchemes...). // match schemes allowed in the feed specs.
+		RequireNoFollowOnLinks(true).          // add nofollow on href.
+		RequireNoReferrerOnLinks(true).        // add noreferer on href.
+		AllowAttrs("src").OnElements("img").   // allow src on image.
+		AllowElements("svg")                   // allow svg.
 })
 
 // SanitizeHTML sanitizes strings containing HTML. It performs:
@@ -32,7 +42,12 @@ var policy = sync.OnceValue(func() *bluemonday.Policy {
 //
 // The resulting string should still contain valid HTML, but will be much safer to use.
 func SanitizeHTML(str string) string {
-	return strings.TrimSpace(html.UnescapeString(policy().Sanitize(str)))
+	var err error
+	str, err = fullyUnescape(strings.TrimSpace(str), 5)
+	if err != nil {
+		return ""
+	}
+	return policy().Sanitize(str)
 }
 
 // SanitizeURLString attempts to "sanitize" a string value representing a URL. It performs:
@@ -91,8 +106,10 @@ func SanitizeText(s string, maxRunes int) string {
 		}
 		b.WriteRune(r)
 		n++
-		if n >= maxRunes {
-			break
+		if maxRunes > 0 {
+			if n >= maxRunes {
+				break
+			}
 		}
 	}
 	return strings.TrimSpace(b.String())
@@ -102,4 +119,17 @@ func SanitizeText(s string, maxRunes int) string {
 // short-form text.
 func SanitizeInput(s string) string {
 	return SanitizeText(s, DefaultMaxRunes)
+}
+
+// fullUnEscape handles nested escaped strings. It will unescape continually up to maxPasses times, or until the string
+// is no longer escaped. After maxPasses, an empty string is returned.
+func fullyUnescape(s string, maxPasses int) (string, error) {
+	for range maxPasses {
+		u := html.UnescapeString(s)
+		if u == s {
+			return s, nil
+		}
+		s = u
+	}
+	return "", errors.New("too many layers of escaping")
 }

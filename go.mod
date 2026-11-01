@@ -6,15 +6,15 @@ replace github.com/dprotaso/go-yit => github.com/dprotaso/go-yit v0.0.0-20220510
 
 require (
 	codeberg.org/readeck/go-readability/v2 v2.1.3
-	github.com/a-h/templ v0.3.1070
+	github.com/a-h/templ v0.3.1100
 	github.com/didip/tollbooth/v8 v8.0.1
 	github.com/fatih/color v1.19.0
 	github.com/go-chi/chi/v5 v5.5.0
-	github.com/go-playground/form/v4 v4.5.0
+	github.com/go-playground/form/v4 v4.5.1
 	github.com/go-playground/validator/v10 v10.30.5
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/indaco/teseo v0.2.5
-	github.com/jub0bs/cors v1.1.3
+	github.com/jub0bs/cors v1.3.0
 	github.com/knadh/koanf/providers/env/v2 v2.0.2
 	github.com/knadh/koanf/v2 v2.4.1
 	github.com/lmittmann/tint v1.2.1
@@ -22,14 +22,14 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/realclientip/realclientip-go v1.0.0
 	github.com/samber/slog-chi v1.19.1
-	github.com/samber/slog-multi v1.8.0
+	github.com/samber/slog-multi v1.9.0
 	github.com/veqryn/slog-context v0.9.0
 	github.com/veqryn/slog-context/otel v0.9.0
-	github.com/yuin/goldmark v1.8.6
+	github.com/yuin/goldmark v1.8.7
 	github.com/zeebo/xxh3 v1.1.0
 	go.abhg.dev/goldmark/frontmatter v0.3.0
 	go.opentelemetry.io/otel/trace v1.47.0
-	golang.org/x/net v0.61.0
+	golang.org/x/net v0.62.0
 	golang.org/x/text v0.43.0
 	golang.org/x/time v0.16.0
 )
@@ -60,11 +60,11 @@ require (
 	github.com/mattn/go-colorable v0.1.15 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
-	github.com/oapi-codegen/oapi-codegen/v2 v2.8.0 // indirect
+	github.com/oapi-codegen/oapi-codegen/v2 v2.8.2 // indirect
 	github.com/oasdiff/yaml v0.1.1 // indirect
 	github.com/oasdiff/yaml3 v0.0.14 // indirect
 	github.com/samber/lo v1.53.0 // indirect
-	github.com/samber/slog-common v0.21.0 // indirect
+	github.com/samber/slog-common v0.22.0 // indirect
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2 // indirect
 	github.com/speakeasy-api/jsonpath v0.6.3 // indirect
 	github.com/speakeasy-api/openapi v1.24.0 // indirect

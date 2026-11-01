@@ -1,5 +1,29 @@
 {
-    "licenser.author": "Joshua Rich <joshua.rich@gmail.com>",
-    "licenser.license": "AGPLv3",
-    "licenser.useSPDXLicenseFormat": true,
+    "psi-header.config": {
+        "forceToTop": true,
+        "creation": "new",
+        "blankLinesAfter": 1,
+        "license": "AGPLv3"
+    },
+    "psi-header.templates": [
+        {
+            "language": "*",
+            "template": [
+                "Copyright (c) <<year>> <<company>>",
+                "SPDX-License-Identifier: AGPL-3.0-or-later"
+            ]
+        }
+    ],
+    "psi-header.changes-tracking": {
+        "isActive": true,
+        "modAuthor": "Modified By:",
+        "modDate": "Last Modified:",
+        "modDateFormat": "date"
+    },
+    "psi-header.variables": [
+        [
+            "company",
+            "Immanent Tech"
+        ]
+    ],
 }

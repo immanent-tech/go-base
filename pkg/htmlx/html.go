@@ -13,13 +13,11 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
-	"slices"
 	"strings"
 	"sync"
 
 	"github.com/go-resty/resty/v2"
 	"golang.org/x/net/html"
-	"golang.org/x/net/html/atom"
 )
 
 var (
@@ -298,64 +296,6 @@ func FindAllHTMLNodes(n *html.Node, tag string) []*html.Node {
 	}
 	return results
 }
-
-// Lint performs sanitization of HTML. With no options specified, it ensures the input string parses correctly and
-// returns well-formed HTML as a string. Additional options can be specified to perform additional sanitization steps,
-// such as stripping all attributes from all elements and removing whitespace-only elements.
-func Lint(input string, opts ...SanitizeOption) (string, error) {
-	var root *html.Node
-
-	// Parse as either full or partial HTML document.
-	trimmed := strings.TrimSpace(input)
-	lower := strings.ToLower(trimmed)
-	if isFullDocument := strings.HasPrefix(lower, "<!doctype") ||
-		strings.Contains(lower, "<html"); isFullDocument {
-		var err error
-		root, err = html.Parse(strings.NewReader(input))
-		if err != nil {
-			return "", fmt.Errorf("parse html: %w", err)
-		}
-	} else {
-		nodes, err := html.ParseFragment(strings.NewReader(input), &html.Node{
-			Type:     html.ElementNode,
-			Data:     "body",
-			DataAtom: atom.Body,
-		})
-		if err != nil {
-			return "", fmt.Errorf("parse html fragment: %w", err)
-		}
-		wrapper := &html.Node{Type: html.ElementNode, Data: "body"}
-		for n := range slices.Values(nodes) {
-			wrapper.AppendChild(n)
-		}
-		root = wrapper
-	}
-
-	// Perform any requested sanitisation options.
-	for option := range slices.Values(opts) {
-		option(root)
-	}
-
-	// Create a buffer for sanitized HTML.
-	buf, ok := bufPool.Get().(*bytes.Buffer)
-	if !ok {
-		return "", errors.New("unable to retrieve buffer")
-	}
-	buf.Reset()
-	defer bufPool.Put(buf)
-
-	// Write out sanitized HTML.
-	for c := root.FirstChild; c != nil; c = c.NextSibling {
-		if err := html.Render(buf, c); err != nil {
-			return "", fmt.Errorf("render html: %w", err)
-		}
-	}
-	return buf.String(), nil
-
-}
-
-// SanitizeOption is a functional option for performing a specific sanitization to the given HTML node.
-type SanitizeOption func(node *html.Node)
 
 var whitespaceRe = regexp.MustCompile(`\s+`)
 

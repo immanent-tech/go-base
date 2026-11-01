@@ -299,10 +299,10 @@ func FindAllHTMLNodes(n *html.Node, tag string) []*html.Node {
 	return results
 }
 
-// Sanitize performs sanitization of HTML. With no options specified, it ensures the input string parses correctly and
+// Lint performs sanitization of HTML. With no options specified, it ensures the input string parses correctly and
 // returns well-formed HTML as a string. Additional options can be specified to perform additional sanitization steps,
 // such as stripping all attributes from all elements and removing whitespace-only elements.
-func Sanitize(input string, opts ...SanitizeOption) (string, error) {
+func Lint(input string, opts ...SanitizeOption) (string, error) {
 	var root *html.Node
 
 	// Parse as either full or partial HTML document.

@@ -239,19 +239,6 @@ func findFaviconCandidates(page []byte) []Favicon {
 	return candidates
 }
 
-// resolve turns a possibly relative href into an absolute URL based on the page origin.
-func resolve(pageURL, href string) (string, error) {
-	base, err := url.Parse(pageURL)
-	if err != nil {
-		return "", fmt.Errorf("parse url %s: %w", pageURL, err)
-	}
-	ref, err := url.Parse(href)
-	if err != nil {
-		return "", fmt.Errorf("parse url %s: %w", href, err)
-	}
-	return base.ResolveReference(ref).String(), nil
-}
-
 // findBestFaviconCandidate tries each candidate in order and returns the first one that responds with a 2xx status and
 // a non-empty body.
 func findBestFavicon(
@@ -265,12 +252,14 @@ func findBestFavicon(
 		return nil, "", Favicon{}, errors.New("no favicon candidates found")
 	}
 
+	parsedURL, err := url.Parse(pageURL)
+	if err != nil {
+		return nil, "", Favicon{}, fmt.Errorf("parse URL: %w", err)
+	}
+
 	// Loop over favicon candidate URLs and return the first one found.
 	for cand := range slices.Values(candidates) {
-		abs, err := resolve(pageURL, cand.href)
-		if err != nil {
-			continue
-		}
+		abs := resolve(parsedURL, cand.href)
 		resp, err := httpClient.R().Get(abs)
 		if err != nil {
 			continue

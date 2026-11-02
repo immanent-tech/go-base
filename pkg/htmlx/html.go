@@ -386,6 +386,34 @@ func writeAttrText(buf *bytes.Buffer, tok html.Token, skipDepth int) {
 	}
 }
 
+// resolve returns ref made absolute against base, or ref unchanged if it
+// shouldn't or can't be resolved.
+func resolve(base *url.URL, ref string) string {
+	trimmed := strings.TrimSpace(ref)
+	if trimmed == "" || strings.HasPrefix(trimmed, "#") {
+		return ref
+	}
+	u, err := url.Parse(trimmed)
+	if err != nil || u.IsAbs() {
+		return ref
+	}
+	return base.ResolveReference(u).String()
+}
+
+// resolveSrcset handles "a.jpg 1x, b.jpg 2x" style values.
+func resolveSrcset(base *url.URL, val string) string {
+	parts := strings.Split(val, ",")
+	for i, p := range parts {
+		fields := strings.Fields(p)
+		if len(fields) == 0 {
+			continue
+		}
+		fields[0] = resolve(base, fields[0])
+		parts[i] = strings.Join(fields, " ")
+	}
+	return strings.Join(parts, ", ")
+}
+
 var bufPool = sync.Pool{
 	New: func() any {
 		return new(bytes.Buffer)

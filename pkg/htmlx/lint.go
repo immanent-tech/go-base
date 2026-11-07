@@ -86,7 +86,7 @@ func Lint(input string, opts ...SanitizeOption) (string, error) {
 			return "", fmt.Errorf("render html: %w", err)
 		}
 	}
-	return buf.String(), nil
+	return strings.TrimSpace(buf.String()), nil
 }
 
 // SanitizeOption is a functional option for performing a specific sanitization to the given HTML node.

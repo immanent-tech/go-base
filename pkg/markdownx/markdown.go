@@ -139,5 +139,5 @@ func ToHTML(input []byte) ([]byte, error) {
 	if err := converter.Convert(input, buf); err != nil {
 		return nil, fmt.Errorf("format as markdown: %w", err)
 	}
-	return buf.Bytes(), nil
+	return bytes.TrimSpace(buf.Bytes()), nil
 }

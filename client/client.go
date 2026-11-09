@@ -13,7 +13,6 @@ import (
 	"slices"
 	"strings"
 	"syscall"
-	"time"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/immanent-tech/go-base/config"
@@ -128,6 +127,4 @@ var SecureDialer = &net.Dialer{
 		}
 		return nil
 	},
-	Timeout:   5 * time.Second,
-	KeepAlive: 30 * time.Second,
 }

@@ -11,9 +11,9 @@ require (
 	github.com/fatih/color v1.19.0
 	github.com/go-chi/chi/v5 v5.5.0
 	github.com/go-playground/form/v4 v4.5.1
-	github.com/go-playground/validator/v10 v10.30.5
+	github.com/go-playground/validator/v10 v10.30.6
 	github.com/go-resty/resty/v2 v2.17.2
-	github.com/indaco/teseo v0.2.5
+	github.com/indaco/teseo v0.2.6
 	github.com/jub0bs/cors v1.3.0
 	github.com/knadh/koanf/providers/env/v2 v2.0.2
 	github.com/knadh/koanf/v2 v2.4.1
@@ -40,14 +40,14 @@ require (
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dprotaso/go-yit v0.0.0-20220510233725-9ba8df137936 // indirect
-	github.com/gabriel-vasile/mimetype v1.4.15 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.16 // indirect
 	github.com/getkin/kin-openapi v0.142.0 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-openapi/jsonpointer v0.23.1 // indirect
 	github.com/go-openapi/swag/jsonname v0.26.0 // indirect
 	github.com/go-pkgz/expirable-cache/v3 v3.0.0 // indirect
-	github.com/go-playground/locales v0.14.1 // indirect
-	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/go-playground/locales v0.14.2 // indirect
+	github.com/go-playground/universal-translator v0.18.2 // indirect
 	github.com/go-shiori/dom v0.0.0-20230515143342-73569d674e1c // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/gogs/chardet v0.0.0-20211120154057-b7413eaefb8f // indirect

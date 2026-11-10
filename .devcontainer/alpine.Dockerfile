@@ -37,7 +37,7 @@ RUN curl -fsSL -o /usr/local/bin/oh-my-posh \
     && chmod +x /usr/local/bin/oh-my-posh
 
 # Install gcloud.
-ARG GCLOUD_VERSION=590.0.0
+ARG GCLOUD_VERSION=592.0.0
 ENV CLOUDSDK_PYTHON=python3
 RUN case "$TARGETARCH" in \
     amd64) GARCH=x86_64 ;; \
